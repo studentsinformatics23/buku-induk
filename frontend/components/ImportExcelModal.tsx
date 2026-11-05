@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import {
   importSiswaExcel,
-  getTemplateExcelUrl,
+  downloadTemplateExcel,
   ImportResult,
 } from '../lib/api';
 import {
@@ -114,14 +114,20 @@ export default function ImportExcelModal({
                 Pastikan susunan kolom sesuai format standar sistem.
               </p>
             </div>
-            <a
-              href={getTemplateExcelUrl()}
-              download="template_import_siswa.xlsx"
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-blue-700 bg-white border border-blue-200 hover:bg-blue-50 rounded-xl transition-all shadow-2xs shrink-0"
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  await downloadTemplateExcel();
+                } catch (e: any) {
+                  setErrorMsg(e.message || 'Gagal mengunduh template.');
+                }
+              }}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-blue-700 bg-white border border-blue-200 hover:bg-blue-50 rounded-xl transition-all shadow-2xs shrink-0 cursor-pointer"
             >
               <DownloadIcon className="w-4 h-4" />
               <span>Unduh Template</span>
-            </a>
+            </button>
           </div>
 
           {/* Error Message */}

@@ -9,6 +9,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('siswa.urls')),
+    path('api/auth/', include('accounts.urls')),
 ]
 
 # Konfigurasi untuk melayani file media saat development

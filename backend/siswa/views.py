@@ -1,6 +1,8 @@
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
+from rest_framework.exceptions import PermissionDenied
 from django.http import HttpResponse
 from datetime import datetime, date
 import openpyxl
@@ -16,9 +18,26 @@ from .serializers import (
 )
 
 
+def get_user_role(request):
+    """Mendapatkan role user dari profile. Default ke 'wali_kelas' jika tidak ada profile."""
+    if request.user.is_superuser:
+        return 'admin'
+    try:
+        return request.user.profile.role
+    except Exception:
+        return 'wali_kelas'
+
+
+def is_admin(request):
+    """Cek apakah user adalah admin atau superuser."""
+    return get_user_role(request) == 'admin'
+
+
 class SiswaViewSet(viewsets.ModelViewSet):
     """
     API endpoint untuk mengelola data Siswa (CRUD).
+    - Admin / TU: akses penuh (CRUD, import, export, template)
+    - Wali Kelas: hanya baca (GET), bisa akses nilai dan cetak PDF
     Mendukung:
     - Pencarian (?search=...)
     - Filter Kelas (?kelas=...)
@@ -30,10 +49,16 @@ class SiswaViewSet(viewsets.ModelViewSet):
     - Import data Excel (/api/siswa/import-excel/)
     """
     queryset = Siswa.objects.all()
+    permission_classes = [IsAuthenticated]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['nisn', 'nama_lengkap', 'alamat', 'tempat_lahir', 'kelas', 'status_siswa']
     ordering_fields = ['nisn', 'nama_lengkap', 'tanggal_lahir', 'kelas', 'status_siswa', 'id']
     ordering = ['nama_lengkap']
+
+    def check_admin_permission(self):
+        """Raise PermissionDenied jika bukan admin."""
+        if not is_admin(self.request):
+            raise PermissionDenied("Hanya Admin / Tata Usaha yang dapat melakukan aksi ini.")
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -51,6 +76,18 @@ class SiswaViewSet(viewsets.ModelViewSet):
         if self.action == 'retrieve':
             return SiswaDetailSerializer
         return SiswaSerializer
+
+    def create(self, request, *args, **kwargs):
+        self.check_admin_permission()
+        return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        self.check_admin_permission()
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        self.check_admin_permission()
+        return super().destroy(request, *args, **kwargs)
 
     @action(detail=True, methods=['get'])
     def nilai(self, request, pk=None):
@@ -231,8 +268,9 @@ class SiswaViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'], url_path='import-excel')
     def import_excel(self, request):
         """
-        Mengimpor data siswa dari file Excel (.xlsx).
+        Mengimpor data siswa dari file Excel (.xlsx). Hanya admin yang diizinkan.
         """
+        self.check_admin_permission()
         file_obj = request.FILES.get('file')
         if not file_obj:
             return Response(
@@ -397,26 +435,60 @@ class SiswaViewSet(viewsets.ModelViewSet):
 
 
 class TahunSemesterViewSet(viewsets.ModelViewSet):
-    """API endpoint untuk Tahun Ajaran dan Semester (CRUD)."""
+    """API endpoint untuk Tahun Ajaran dan Semester (CRUD). Hanya admin yang bisa edit."""
     queryset = TahunSemester.objects.all()
     serializer_class = TahunSemesterSerializer
+    permission_classes = [IsAuthenticated]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['tahun_ajaran', 'semester']
     ordering_fields = ['tahun_ajaran', 'semester']
 
+    def create(self, request, *args, **kwargs):
+        if not is_admin(request):
+            raise PermissionDenied("Hanya admin yang dapat menambah data ini.")
+        return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        if not is_admin(request):
+            raise PermissionDenied("Hanya admin yang dapat mengubah data ini.")
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        if not is_admin(request):
+            raise PermissionDenied("Hanya admin yang dapat menghapus data ini.")
+        return super().destroy(request, *args, **kwargs)
+
 
 class MataPelajaranViewSet(viewsets.ModelViewSet):
-    """API endpoint untuk Mata Pelajaran (CRUD)."""
+    """API endpoint untuk Mata Pelajaran (CRUD). Hanya admin yang bisa edit."""
     queryset = MataPelajaran.objects.all()
     serializer_class = MataPelajaranSerializer
+    permission_classes = [IsAuthenticated]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['kode_mapel', 'nama_mapel']
     ordering_fields = ['kode_mapel', 'nama_mapel']
+
+    def create(self, request, *args, **kwargs):
+        if not is_admin(request):
+            raise PermissionDenied("Hanya admin yang dapat menambah data ini.")
+        return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        if not is_admin(request):
+            raise PermissionDenied("Hanya admin yang dapat mengubah data ini.")
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        if not is_admin(request):
+            raise PermissionDenied("Hanya admin yang dapat menghapus data ini.")
+        return super().destroy(request, *args, **kwargs)
 
 
 class NilaiSiswaViewSet(viewsets.ModelViewSet):
     """
     API endpoint untuk Nilai Siswa (CRUD).
+    - Admin / TU: akses penuh
+    - Wali Kelas: dapat input dan hapus nilai siswa di kelasnya
     Mendukung filter query parameter:
     - ?siswa=<id>
     - ?tahun_semester=<id>
@@ -424,6 +496,7 @@ class NilaiSiswaViewSet(viewsets.ModelViewSet):
     """
     queryset = NilaiSiswa.objects.select_related('siswa', 'tahun_semester', 'mata_pelajaran').all()
     serializer_class = NilaiSiswaSerializer
+    permission_classes = [IsAuthenticated]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['siswa__nama_lengkap', 'siswa__nisn', 'mata_pelajaran__nama_mapel']
     ordering_fields = ['nilai_angka', 'id']

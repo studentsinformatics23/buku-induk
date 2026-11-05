@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import Navbar from '../components/Navbar';
 import SiswaModal from '../components/SiswaModal';
 import BukuIndukModal from '../components/BukuIndukModal';
@@ -13,8 +14,13 @@ import {
   deleteSiswa,
   getMataPelajaranList,
   getTahunSemesterList,
-  getExportExcelUrl,
+  downloadExportExcel,
 } from '../lib/api';
+import {
+  User,
+  isAuthenticated,
+  getCurrentUser,
+} from '../lib/auth';
 import {
   SearchIcon,
   PlusIcon,
@@ -25,19 +31,25 @@ import {
   GraduationCapIcon,
   CalendarIcon,
   AlertCircleIcon,
-  MapPinIcon,
   FileSpreadsheetIcon,
   DownloadIcon,
   PrinterIcon,
+  ShieldCheckIcon,
+  UserCheckIcon,
 } from '../components/Icons';
 
 export default function Home() {
+  const router = useRouter();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+
   const [siswaList, setSiswaList] = useState<Siswa[]>([]);
   const [search, setSearch] = useState('');
   const [kelasFilter, setKelasFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
 
   // Stats
   const [totalMapel, setTotalMapel] = useState(0);
@@ -56,7 +68,33 @@ export default function Home() {
   const [isCetakModalOpen, setIsCetakModalOpen] = useState(false);
   const [selectedSiswaIdForCetak, setSelectedSiswaIdForCetak] = useState<number | null>(null);
 
+  // Check auth on mount
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      router.replace('/login');
+      return;
+    }
+    const user = getCurrentUser();
+    setCurrentUser(user);
+    setAuthChecked(true);
+
+    const handleAuthChange = () => {
+      if (!isAuthenticated()) {
+        router.replace('/login');
+      } else {
+        setCurrentUser(getCurrentUser());
+      }
+    };
+
+    window.addEventListener('auth-change', handleAuthChange);
+    return () => window.removeEventListener('auth-change', handleAuthChange);
+  }, [router]);
+
+  const isAdmin = currentUser?.role === 'admin';
+  const isWaliKelas = currentUser?.role === 'wali_kelas';
+
   const loadData = useCallback(async (query: string = '', k: string = '', s: string = '') => {
+    if (!isAuthenticated()) return;
     setLoading(true);
     setServerError(null);
     try {
@@ -70,25 +108,32 @@ export default function Home() {
       setTotalSemester(semester.length);
     } catch (err: any) {
       console.error(err);
+      if (err.message && err.message.includes('Sesi Anda telah berakhir')) {
+        router.replace('/login');
+        return;
+      }
       setServerError(
-        'Tidak dapat terhubung ke Backend Django (http://127.0.0.1:8000). Pastikan server backend sudah dijalankan.'
+        'Tidak dapat terhubung ke Backend Django (http://127.0.0.1:8000). Pastikan server backend sudah berjalan.'
       );
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
-    loadData(search, kelasFilter, statusFilter);
-  }, [loadData, kelasFilter, statusFilter]);
+    if (authChecked) {
+      loadData(search, kelasFilter, statusFilter);
+    }
+  }, [authChecked, loadData, kelasFilter, statusFilter]);
 
   // Debounced search
   useEffect(() => {
+    if (!authChecked) return;
     const timer = setTimeout(() => {
       loadData(search, kelasFilter, statusFilter);
     }, 350);
     return () => clearTimeout(timer);
-  }, [search, kelasFilter, statusFilter, loadData]);
+  }, [search, kelasFilter, statusFilter, loadData, authChecked]);
 
   // Unique list of classes for dropdown
   const uniqueClasses = useMemo(() => {
@@ -136,6 +181,21 @@ export default function Home() {
     }
   };
 
+  const handleExportExcel = async () => {
+    setExporting(true);
+    try {
+      await downloadExportExcel({
+        search,
+        kelas: kelasFilter,
+        status_siswa: statusFilter,
+      });
+    } catch (err: any) {
+      alert('Gagal mengunduh Excel: ' + err.message);
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'Aktif':
@@ -149,15 +209,70 @@ export default function Home() {
     }
   };
 
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="mt-3 text-xs font-semibold text-slate-500">Memeriksa autentikasi...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <Navbar
         loading={loading}
+        user={currentUser}
         onRefresh={() => loadData(search, kelasFilter, statusFilter)}
         onOpenMasterData={() => setIsMasterDataOpen(true)}
       />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-1">
+        {/* Role Information Banner */}
+        <div className="mb-6 p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div
+              className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                isAdmin ? 'bg-blue-100 text-blue-700' : 'bg-indigo-100 text-indigo-700'
+              }`}
+            >
+              {isAdmin ? <ShieldCheckIcon className="w-5 h-5" /> : <UserCheckIcon className="w-5 h-5" />}
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-slate-900">
+                  Selamat Datang, {currentUser?.first_name || currentUser?.username}!
+                </span>
+                <span
+                  className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                    isAdmin
+                      ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                      : 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+                  }`}
+                >
+                  {isAdmin ? 'Peran: Admin / Tata Usaha' : `Peran: Wali Kelas ${currentUser?.kelas_diampu ? `(${currentUser.kelas_diampu})` : ''}`}
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                {isAdmin
+                  ? 'Anda memiliki hak akses penuh: kelola data siswa (CRUD), impor/ekspor Excel, dan kelola data master mapel/semester.'
+                  : 'Anda dapat menginput & mengelola nilai siswa pada Buku Induk serta mencetak/mengunduh dokumen PDF resmi.'}
+              </p>
+            </div>
+          </div>
+          {isWaliKelas && currentUser?.kelas_diampu && (
+            <button
+              type="button"
+              onClick={() => setKelasFilter(currentUser.kelas_diampu)}
+              className="px-3 py-1.5 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl transition-all self-start sm:self-auto cursor-pointer"
+            >
+              Filter Kelas Saya ({currentUser.kelas_diampu})
+            </button>
+          )}
+        </div>
+
         {/* Error notification if backend is offline */}
         {serverError && (
           <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3 text-amber-900 animate-fade-in shadow-xs">
@@ -173,7 +288,7 @@ export default function Home() {
         )}
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
@@ -261,40 +376,41 @@ export default function Home() {
                 <option value="Keluar">Status: Keluar</option>
               </select>
 
-              {/* Export Excel Link */}
-              <a
-                href={getExportExcelUrl({
-                  search,
-                  kelas: kelasFilter,
-                  status_siswa: statusFilter,
-                })}
-                download
-                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold text-slate-800 bg-white hover:bg-slate-50 border border-slate-300 rounded-xl transition-all cursor-pointer shadow-2xs"
+              {/* Export Excel Button (Authenticated) */}
+              <button
+                type="button"
+                onClick={handleExportExcel}
+                disabled={exporting}
+                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold text-slate-800 bg-white hover:bg-slate-50 border border-slate-300 rounded-xl transition-all cursor-pointer shadow-2xs disabled:opacity-50"
                 title="Unduh seluruh data siswa dalam format Excel"
               >
                 <DownloadIcon className="w-4 h-4 text-slate-600" />
-                <span>Export Excel</span>
-              </a>
-
-              {/* Import Excel Button */}
-              <button
-                onClick={() => setIsImportModalOpen(true)}
-                type="button"
-                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl transition-all cursor-pointer shadow-2xs"
-              >
-                <FileSpreadsheetIcon className="w-4 h-4 text-emerald-700" />
-                <span>Import Excel</span>
+                <span>{exporting ? 'Mengunduh...' : 'Export Excel'}</span>
               </button>
 
-              {/* Tambah Siswa Button */}
-              <button
-                onClick={handleOpenAdd}
-                type="button"
-                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition-all cursor-pointer shrink-0"
-              >
-                <PlusIcon className="w-4 h-4" />
-                <span>Tambah Siswa</span>
-              </button>
+              {/* Import Excel Button (Hanya Admin / TU) */}
+              {isAdmin && (
+                <button
+                  onClick={() => setIsImportModalOpen(true)}
+                  type="button"
+                  className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl transition-all cursor-pointer shadow-2xs"
+                >
+                  <FileSpreadsheetIcon className="w-4 h-4 text-emerald-700" />
+                  <span>Import Excel</span>
+                </button>
+              )}
+
+              {/* Tambah Siswa Button (Hanya Admin / TU) */}
+              {isAdmin && (
+                <button
+                  onClick={handleOpenAdd}
+                  type="button"
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition-all cursor-pointer shrink-0"
+                >
+                  <PlusIcon className="w-4 h-4" />
+                  <span>Tambah Siswa</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -400,7 +516,7 @@ export default function Home() {
                       {/* Actions */}
                       <td className="px-5 py-3.5 text-right">
                         <div className="inline-flex items-center gap-1">
-                          {/* Buku Induk & Nilai */}
+                          {/* Buku Induk & Nilai (Akses untuk Admin & Wali Kelas) */}
                           <button
                             onClick={() => handleOpenBukuInduk(siswa.id)}
                             type="button"
@@ -411,7 +527,7 @@ export default function Home() {
                             <span>Buku Induk</span>
                           </button>
 
-                          {/* Cetak / PDF */}
+                          {/* Cetak / PDF (Akses untuk Admin & Wali Kelas) */}
                           <button
                             onClick={() => handleOpenCetak(siswa.id)}
                             type="button"
@@ -422,25 +538,29 @@ export default function Home() {
                             <span className="hidden sm:inline">Cetak PDF</span>
                           </button>
 
-                          {/* Edit */}
-                          <button
-                            onClick={() => handleOpenEdit(siswa)}
-                            type="button"
-                            className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
-                            title="Edit Biodata"
-                          >
-                            <EditIcon className="w-4 h-4" />
-                          </button>
+                          {/* Edit Biodata (Hanya Admin / TU) */}
+                          {isAdmin && (
+                            <button
+                              onClick={() => handleOpenEdit(siswa)}
+                              type="button"
+                              className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                              title="Edit Biodata Siswa"
+                            >
+                              <EditIcon className="w-4 h-4" />
+                            </button>
+                          )}
 
-                          {/* Hapus */}
-                          <button
-                            onClick={() => handleDelete(siswa)}
-                            type="button"
-                            className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                            title="Hapus Siswa"
-                          >
-                            <TrashIcon className="w-4 h-4" />
-                          </button>
+                          {/* Hapus Siswa (Hanya Admin / TU) */}
+                          {isAdmin && (
+                            <button
+                              onClick={() => handleDelete(siswa)}
+                              type="button"
+                              className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                              title="Hapus Siswa"
+                            >
+                              <TrashIcon className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -448,16 +568,11 @@ export default function Home() {
                 ) : (
                   <tr>
                     <td colSpan={8} className="px-6 py-16 text-center text-slate-400">
-                      <UserIcon className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                      <p className="text-sm font-semibold text-slate-700">
-                        {search || kelasFilter || statusFilter
-                          ? 'Tidak ada siswa yang sesuai filter pencarian.'
-                          : 'Belum ada data siswa.'}
+                      <p className="text-sm font-semibold text-slate-600">
+                        Tidak ada data siswa ditemukan.
                       </p>
                       <p className="text-xs text-slate-400 mt-1">
-                        {search || kelasFilter || statusFilter
-                          ? 'Coba atur ulang kata kunci atau filter kelas & status.'
-                          : 'Klik tombol "Tambah Siswa" atau "Import Excel" di atas untuk menambahkan data siswa.'}
+                        Coba sesuaikan kata kunci pencarian atau filter kelas.
                       </p>
                     </td>
                   </tr>
@@ -468,19 +583,12 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white py-4 mt-auto print:hidden">
-        <div className="max-w-7xl mx-auto px-4 text-center text-xs text-slate-400">
-          Sistem Buku Induk Siswa &bull; Backend Django &amp; Frontend Next.js
-        </div>
-      </footer>
-
       {/* Modals */}
       <SiswaModal
         isOpen={isSiswaModalOpen}
         onClose={() => setIsSiswaModalOpen(false)}
-        onSuccess={() => loadData(search, kelasFilter, statusFilter)}
         siswaToEdit={selectedSiswaForEdit}
+        onSuccess={() => loadData(search, kelasFilter, statusFilter)}
       />
 
       <BukuIndukModal
@@ -488,6 +596,12 @@ export default function Home() {
         onClose={() => setIsBukuIndukOpen(false)}
         siswaId={selectedSiswaIdForBukuInduk}
         onUpdated={() => loadData(search, kelasFilter, statusFilter)}
+      />
+
+      <CetakBukuIndukModal
+        isOpen={isCetakModalOpen}
+        onClose={() => setIsCetakModalOpen(false)}
+        siswaId={selectedSiswaIdForCetak}
       />
 
       <MasterDataModal
@@ -502,12 +616,6 @@ export default function Home() {
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
         onSuccess={() => loadData(search, kelasFilter, statusFilter)}
-      />
-
-      <CetakBukuIndukModal
-        isOpen={isCetakModalOpen}
-        onClose={() => setIsCetakModalOpen(false)}
-        siswaId={selectedSiswaIdForCetak}
       />
     </div>
   );

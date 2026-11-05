@@ -1,3 +1,12 @@
+import {
+  getAccessToken,
+  getRefreshToken,
+  refreshAccessToken,
+  clearAuth,
+  LoginResponse,
+  User,
+} from './auth';
+
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
 
 export interface Siswa {
@@ -55,22 +64,69 @@ export interface ImportResult {
   errors: string[];
 }
 
-// Helper fetch wrapper
-async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
+// Helper fetch wrapper dengan otomatis Bearer Token dan Token Refresh
+async function apiFetch<T>(endpoint: string, options?: RequestInit, retry = true): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
+  let token = getAccessToken();
+
+  const headers: Record<string, string> = {
+    Accept: 'application/json',
+    ...(options?.headers as Record<string, string> || {}),
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const response = await fetch(url, {
-    headers: {
-      Accept: 'application/json',
-      ...(options?.headers || {}),
-    },
     ...options,
+    headers,
   });
+
+  // Jika token expired (401) dan retry diperbolehkan, coba refresh token
+  if (response.status === 401 && retry && getRefreshToken()) {
+    const newToken = await refreshAccessToken();
+    if (newToken) {
+      headers['Authorization'] = `Bearer ${newToken}`;
+      const retryResponse = await fetch(url, {
+        ...options,
+        headers,
+      });
+
+      if (!retryResponse.ok) {
+        let err = 'Terjadi kesalahan pada server';
+        try {
+          const json = await retryResponse.json();
+          err = json.detail || json.error || JSON.stringify(json);
+        } catch {
+          err = await retryResponse.text();
+        }
+        throw new Error(err);
+      }
+
+      if (retryResponse.status === 204) return null as T;
+      return retryResponse.json();
+    } else {
+      clearAuth();
+      if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    }
+  }
+
+  if (response.status === 401) {
+    clearAuth();
+    if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+      window.location.href = '/login';
+    }
+    throw new Error('Sesi Anda telah berakhir. Silakan login kembali.');
+  }
 
   if (!response.ok) {
     let errorDetail = 'Terjadi kesalahan pada server';
     try {
       const errorJson = await response.json();
-      errorDetail = errorJson.error || JSON.stringify(errorJson);
+      errorDetail = errorJson.detail || errorJson.error || JSON.stringify(errorJson);
     } catch {
       errorDetail = await response.text();
     }
@@ -84,7 +140,75 @@ async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> 
   return response.json();
 }
 
-// Siswa API
+// Helper untuk download file dengan Authorization Header (Export & Template Excel)
+export async function downloadWithAuth(url: string, filename: string): Promise<void> {
+  const token = getAccessToken();
+  const headers: Record<string, string> = {};
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const res = await fetch(url, { headers });
+  if (!res.ok) {
+    let errMsg = 'Gagal mengunduh berkas.';
+    try {
+      const j = await res.json();
+      errMsg = j.detail || j.error || errMsg;
+    } catch {}
+    throw new Error(errMsg);
+  }
+
+  const blob = await res.blob();
+  const downloadUrl = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = downloadUrl;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(downloadUrl);
+}
+
+// ================= AUTH APIs =================
+export async function loginApi(credentials: { username: string; password: string }): Promise<LoginResponse> {
+  const response = await fetch(`${API_BASE_URL}/auth/login/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify(credentials),
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.detail || 'Gagal login. Periksa username dan password Anda.');
+  }
+  return data;
+}
+
+export async function logoutApi(): Promise<void> {
+  const refresh = getRefreshToken();
+  try {
+    if (refresh) {
+      await apiFetch('/auth/logout/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh }),
+      }, false);
+    }
+  } catch (err) {
+    console.warn('Logout API error ignored:', err);
+  } finally {
+    clearAuth();
+  }
+}
+
+export async function getCurrentUserApi(): Promise<User> {
+  return apiFetch<User>('/auth/me/');
+}
+
+// ================= Siswa API =================
 export async function getSiswaList(filters?: {
   search?: string;
   kelas?: string;
@@ -124,7 +248,7 @@ export async function deleteSiswa(id: number): Promise<void> {
   });
 }
 
-// Import & Template Excel API
+// ================= Import & Export Excel API =================
 export function getTemplateExcelUrl(): string {
   return `${API_BASE_URL}/siswa/download-template/`;
 }
@@ -143,6 +267,22 @@ export function getExportExcelUrl(filters?: {
   return `${API_BASE_URL}/siswa/export-excel/${query}`;
 }
 
+export async function downloadExportExcel(filters?: {
+  search?: string;
+  kelas?: string;
+  status_siswa?: string;
+}): Promise<void> {
+  const url = getExportExcelUrl(filters);
+  const now = new Date();
+  const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
+  await downloadWithAuth(url, `rekap_buku_induk_siswa_${dateStr}.xlsx`);
+}
+
+export async function downloadTemplateExcel(): Promise<void> {
+  const url = getTemplateExcelUrl();
+  await downloadWithAuth(url, 'template_import_siswa.xlsx');
+}
+
 export async function importSiswaExcel(file: File): Promise<ImportResult> {
   const formData = new FormData();
   formData.append('file', file);
@@ -152,7 +292,7 @@ export async function importSiswaExcel(file: File): Promise<ImportResult> {
   });
 }
 
-// Master Data APIs
+// ================= Master Data APIs =================
 export async function getTahunSemesterList(): Promise<TahunSemester[]> {
   const data = await apiFetch<any>('/tahun-semester/');
   return Array.isArray(data) ? data : (data.results || []);
@@ -179,8 +319,12 @@ export async function createMataPelajaran(data: Omit<MataPelajaran, 'id'>): Prom
   });
 }
 
-// Nilai API
-export async function getNilaiList(filters?: { siswa?: number; tahun_semester?: number; mata_pelajaran?: number }): Promise<NilaiSiswa[]> {
+// ================= Nilai API =================
+export async function getNilaiList(filters?: {
+  siswa?: number;
+  tahun_semester?: number;
+  mata_pelajaran?: number;
+}): Promise<NilaiSiswa[]> {
   const params = new URLSearchParams();
   if (filters?.siswa) params.append('siswa', filters.siswa.toString());
   if (filters?.tahun_semester) params.append('tahun_semester', filters.tahun_semester.toString());
