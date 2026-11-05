@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import SiswaModal from '../components/SiswaModal';
 import BukuIndukModal from '../components/BukuIndukModal';
 import MasterDataModal from '../components/MasterDataModal';
+import ImportExcelModal from '../components/ImportExcelModal';
 import {
   Siswa,
   getSiswaList,
@@ -23,6 +24,7 @@ import {
   CalendarIcon,
   AlertCircleIcon,
   MapPinIcon,
+  FileSpreadsheetIcon,
 } from '../components/Icons';
 
 export default function Home() {
@@ -43,6 +45,7 @@ export default function Home() {
   const [selectedSiswaIdForBukuInduk, setSelectedSiswaIdForBukuInduk] = useState<number | null>(null);
 
   const [isMasterDataOpen, setIsMasterDataOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const loadData = useCallback(async (query: string = '') => {
     setLoading(true);
@@ -180,7 +183,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Action Bar (Search & Tambah Button) */}
+        {/* Action Bar (Search, Import Excel, Tambah Siswa) */}
         <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs mb-6 flex flex-col sm:flex-row gap-3 items-center justify-between">
           <div className="relative w-full sm:w-96">
             <SearchIcon className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -193,14 +196,25 @@ export default function Home() {
             />
           </div>
 
-          <button
-            onClick={handleOpenAdd}
-            type="button"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition-all cursor-pointer"
-          >
-            <PlusIcon className="w-4 h-4" />
-            <span>Tambah Data Siswa</span>
-          </button>
+          <div className="flex items-center gap-2.5 w-full sm:w-auto">
+            <button
+              onClick={() => setIsImportModalOpen(true)}
+              type="button"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl transition-all cursor-pointer shadow-2xs"
+            >
+              <FileSpreadsheetIcon className="w-4 h-4 text-emerald-700" />
+              <span>Import Excel</span>
+            </button>
+
+            <button
+              onClick={handleOpenAdd}
+              type="button"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition-all cursor-pointer shrink-0"
+            >
+              <PlusIcon className="w-4 h-4" />
+              <span>Tambah Data Siswa</span>
+            </button>
+          </div>
         </div>
 
         {/* Tabel Data Siswa */}
@@ -320,7 +334,7 @@ export default function Home() {
                       <p className="text-xs text-slate-400 mt-1">
                         {search
                           ? 'Coba gunakan kata kunci pencarian yang lain.'
-                          : 'Klik tombol "Tambah Data Siswa" di atas untuk menambahkan siswa baru.'}
+                          : 'Klik tombol "Tambah Data Siswa" atau "Import Excel" di atas untuk menambahkan data siswa.'}
                       </p>
                     </td>
                   </tr>
@@ -359,6 +373,12 @@ export default function Home() {
           setIsMasterDataOpen(false);
           loadData(search);
         }}
+      />
+
+      <ImportExcelModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onSuccess={() => loadData(search)}
       />
     </div>
   );

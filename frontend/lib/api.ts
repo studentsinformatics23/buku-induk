@@ -37,6 +37,15 @@ export interface NilaiSiswa {
   nilai_angka: string | number;
 }
 
+export interface ImportResult {
+  status: 'success' | 'error';
+  message: string;
+  created_count: number;
+  updated_count: number;
+  total_processed: number;
+  errors: string[];
+}
+
 // Helper fetch wrapper
 async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
@@ -52,11 +61,11 @@ async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> 
     let errorDetail = 'Terjadi kesalahan pada server';
     try {
       const errorJson = await response.json();
-      errorDetail = JSON.stringify(errorJson);
+      errorDetail = errorJson.error || JSON.stringify(errorJson);
     } catch {
       errorDetail = await response.text();
     }
-    throw new Error(`HTTP ${response.status}: ${errorDetail}`);
+    throw new Error(errorDetail);
   }
 
   if (response.status === 204) {
@@ -94,6 +103,20 @@ export async function updateSiswa(id: number, formData: FormData): Promise<Siswa
 export async function deleteSiswa(id: number): Promise<void> {
   return apiFetch<void>(`/siswa/${id}/`, {
     method: 'DELETE',
+  });
+}
+
+// Import & Template Excel API
+export function getTemplateExcelUrl(): string {
+  return `${API_BASE_URL}/siswa/download-template/`;
+}
+
+export async function importSiswaExcel(file: File): Promise<ImportResult> {
+  const formData = new FormData();
+  formData.append('file', file);
+  return apiFetch<ImportResult>('/siswa/import-excel/', {
+    method: 'POST',
+    body: formData,
   });
 }
 
@@ -162,4 +185,3 @@ export async function deleteNilai(id: number): Promise<void> {
     method: 'DELETE',
   });
 }
-
