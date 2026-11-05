@@ -93,21 +93,21 @@ export default function SiswaModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto animate-fade-in">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-100 my-8">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 my-8">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
           <div>
             <h3 className="text-lg font-bold text-slate-900">
               {siswaToEdit ? 'Edit Data Siswa' : 'Tambah Siswa Baru'}
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 font-medium">
               Lengkapi informasi data pokok siswa untuk buku induk.
             </p>
           </div>
           <button
             onClick={onClose}
             type="button"
-            className="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+            className="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-200/60 transition-colors cursor-pointer"
           >
             <XIcon className="w-5 h-5" />
           </button>
@@ -124,7 +124,7 @@ export default function SiswaModal({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+              <label className="block text-xs font-bold text-slate-800 mb-1.5">
                 NISN <span className="text-red-500">*</span>
               </label>
               <input
@@ -133,12 +133,12 @@ export default function SiswaModal({
                 placeholder="Misal: 0081234567"
                 value={nisn}
                 onChange={(e) => setNisn(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="w-full px-3 py-2 text-sm bg-white text-slate-900 font-medium border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent placeholder:text-slate-400 transition-all shadow-2xs"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+              <label className="block text-xs font-bold text-slate-800 mb-1.5">
                 Nama Lengkap <span className="text-red-500">*</span>
               </label>
               <input
@@ -147,14 +147,14 @@ export default function SiswaModal({
                 placeholder="Nama lengkap siswa"
                 value={namaLengkap}
                 onChange={(e) => setNamaLengkap(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="w-full px-3 py-2 text-sm bg-white text-slate-900 font-medium border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent placeholder:text-slate-400 transition-all shadow-2xs"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+              <label className="block text-xs font-bold text-slate-800 mb-1.5">
                 Tempat Lahir <span className="text-red-500">*</span>
               </label>
               <input
@@ -163,12 +163,12 @@ export default function SiswaModal({
                 placeholder="Kota / Tempat Lahir"
                 value={tempatLahir}
                 onChange={(e) => setTempatLahir(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="w-full px-3 py-2 text-sm bg-white text-slate-900 font-medium border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent placeholder:text-slate-400 transition-all shadow-2xs"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+              <label className="block text-xs font-bold text-slate-800 mb-1.5">
                 Tanggal Lahir <span className="text-red-500">*</span>
               </label>
               <input
@@ -176,13 +176,13 @@ export default function SiswaModal({
                 required
                 value={tanggalLahir}
                 onChange={(e) => setTanggalLahir(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
+                className="w-full px-3 py-2 text-sm bg-white text-slate-900 font-medium border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all shadow-2xs"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+            <label className="block text-xs font-bold text-slate-800 mb-1.5">
               Alamat Lengkap <span className="text-red-500">*</span>
             </label>
             <textarea
@@ -191,17 +191,17 @@ export default function SiswaModal({
               placeholder="Alamat domisili siswa..."
               value={alamat}
               onChange={(e) => setAlamat(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-full px-3 py-2 text-sm bg-white text-slate-900 font-medium border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent placeholder:text-slate-400 transition-all shadow-2xs"
             />
           </div>
 
           {/* Upload Foto */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+            <label className="block text-xs font-bold text-slate-800 mb-1.5">
               Foto Siswa (Opsional)
             </label>
             <div className="flex items-center gap-4">
-              <div className="w-16 h-20 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0">
+              <div className="w-16 h-20 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0 shadow-2xs">
                 {fotoPreview ? (
                   <img
                     src={fotoPreview}
@@ -215,8 +215,8 @@ export default function SiswaModal({
                 )}
               </div>
               <div className="flex-1">
-                <label className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer">
-                  <UploadIcon className="w-4 h-4 text-slate-500" />
+                <label className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl transition-colors cursor-pointer">
+                  <UploadIcon className="w-4 h-4 text-slate-600" />
                   <span>Pilih Berkas Foto</span>
                   <input
                     type="file"
@@ -225,7 +225,7 @@ export default function SiswaModal({
                     className="hidden"
                   />
                 </label>
-                <p className="text-[11px] text-slate-400 mt-1">
+                <p className="text-[11px] text-slate-500 mt-1">
                   Format: JPG, PNG, atau JPEG (Maks. 2MB).
                 </p>
               </div>
@@ -233,12 +233,12 @@ export default function SiswaModal({
           </div>
 
           {/* Footer Buttons */}
-          <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+          <div className="pt-4 border-t border-slate-200 flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
               disabled={submitting}
-              className="px-4 py-2 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+              className="px-4 py-2 text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
             >
               Batal
             </button>

@@ -162,3 +162,4 @@ export async function deleteNilai(id: number): Promise<void> {
     method: 'DELETE',
   });
 }
+

@@ -17,7 +17,7 @@ interface MasterDataModalProps {
 }
 
 export default function MasterDataModal({ isOpen, onClose }: MasterDataModalProps) {
-  const [activeTab, setActiveTab] = useState<'tahun' | 'mapel'>('mapel');
+  const [activeTab, setActiveTab] = useState<'mapel' | 'tahun'>('mapel');
 
   // Lists
   const [tahunList, setTahunList] = useState<TahunSemester[]>([]);
@@ -95,14 +95,14 @@ export default function MasterDataModal({ isOpen, onClose }: MasterDataModalProp
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-100 flex flex-col max-h-[85vh]">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-200 flex flex-col max-h-[85vh]">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
           <div>
             <h3 className="text-lg font-bold text-slate-900">
               Kelola Data Master
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 font-medium">
               Mata Pelajaran & Tahun Ajaran / Semester
             </p>
           </div>
@@ -120,10 +120,10 @@ export default function MasterDataModal({ isOpen, onClose }: MasterDataModalProp
           <button
             onClick={() => setActiveTab('mapel')}
             type="button"
-            className={`py-3 px-4 text-xs font-semibold border-b-2 flex items-center gap-2 cursor-pointer transition-colors ${
+            className={`py-3 px-4 text-xs font-bold border-b-2 flex items-center gap-2 cursor-pointer transition-colors ${
               activeTab === 'mapel'
                 ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-slate-500 hover:text-slate-700'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
             <GraduationCapIcon className="w-4 h-4" />
@@ -133,10 +133,10 @@ export default function MasterDataModal({ isOpen, onClose }: MasterDataModalProp
           <button
             onClick={() => setActiveTab('tahun')}
             type="button"
-            className={`py-3 px-4 text-xs font-semibold border-b-2 flex items-center gap-2 cursor-pointer transition-colors ${
+            className={`py-3 px-4 text-xs font-bold border-b-2 flex items-center gap-2 cursor-pointer transition-colors ${
               activeTab === 'tahun'
                 ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-slate-500 hover:text-slate-700'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
             <CalendarIcon className="w-4 h-4" />
@@ -150,7 +150,7 @@ export default function MasterDataModal({ isOpen, onClose }: MasterDataModalProp
             <>
               {/* Form Input Mapel */}
               <form onSubmit={handleCreateMapel} className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-                <h4 className="text-xs font-bold text-slate-800">Tambah Mata Pelajaran</h4>
+                <h4 className="text-xs font-bold text-slate-900">Tambah Mata Pelajaran</h4>
                 {errorMapel && (
                   <div className="p-2 bg-red-100 text-red-700 rounded-lg text-xs flex items-center gap-2">
                     <AlertCircleIcon className="w-4 h-4 shrink-0" />
@@ -165,7 +165,7 @@ export default function MasterDataModal({ isOpen, onClose }: MasterDataModalProp
                       placeholder="Kode (misal: MTK-1)"
                       value={kodeMapel}
                       onChange={(e) => setKodeMapel(e.target.value)}
-                      className="w-full px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 text-xs bg-white text-slate-900 font-bold border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 placeholder:text-slate-400 shadow-2xs"
                     />
                   </div>
                   <div className="sm:col-span-2 flex gap-2">
@@ -175,12 +175,12 @@ export default function MasterDataModal({ isOpen, onClose }: MasterDataModalProp
                       placeholder="Nama Mata Pelajaran (misal: Matematika)"
                       value={namaMapel}
                       onChange={(e) => setNamaMapel(e.target.value)}
-                      className="w-full px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 text-xs bg-white text-slate-900 font-semibold border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 placeholder:text-slate-400 shadow-2xs"
                     />
                     <button
                       type="submit"
                       disabled={savingMapel}
-                      className="inline-flex items-center gap-1 px-3.5 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shrink-0 cursor-pointer disabled:opacity-50"
+                      className="inline-flex items-center gap-1 px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shrink-0 cursor-pointer disabled:opacity-50 shadow-xs"
                     >
                       <PlusIcon className="w-3.5 h-3.5" />
                       <span>{savingMapel ? '...' : 'Tambah'}</span>
@@ -192,7 +192,7 @@ export default function MasterDataModal({ isOpen, onClose }: MasterDataModalProp
               {/* List Mapel */}
               <div className="border border-slate-200 rounded-xl overflow-hidden">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-100 text-slate-600 uppercase text-[10px] font-semibold">
+                  <thead className="bg-slate-100 text-slate-700 uppercase text-[10px] font-bold">
                     <tr>
                       <th className="px-4 py-2.5">Kode</th>
                       <th className="px-4 py-2.5">Nama Mata Pelajaran</th>
@@ -202,13 +202,13 @@ export default function MasterDataModal({ isOpen, onClose }: MasterDataModalProp
                     {mapelList.length > 0 ? (
                       mapelList.map((m) => (
                         <tr key={m.id} className="hover:bg-slate-50">
-                          <td className="px-4 py-2.5 font-mono font-semibold text-blue-700">{m.kode_mapel}</td>
-                          <td className="px-4 py-2.5 text-slate-800 font-medium">{m.nama_mapel}</td>
+                          <td className="px-4 py-2.5 font-mono font-bold text-blue-700">{m.kode_mapel}</td>
+                          <td className="px-4 py-2.5 text-slate-900 font-semibold">{m.nama_mapel}</td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={2} className="px-4 py-6 text-center text-slate-400">
+                        <td colSpan={2} className="px-4 py-6 text-center text-slate-400 font-medium">
                           Belum ada data mata pelajaran.
                         </td>
                       </tr>
@@ -221,7 +221,7 @@ export default function MasterDataModal({ isOpen, onClose }: MasterDataModalProp
             <>
               {/* Form Input Tahun & Semester */}
               <form onSubmit={handleCreateTahun} className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-                <h4 className="text-xs font-bold text-slate-800">Tambah Tahun Ajaran & Semester</h4>
+                <h4 className="text-xs font-bold text-slate-900">Tambah Tahun Ajaran & Semester</h4>
                 {errorTahun && (
                   <div className="p-2 bg-red-100 text-red-700 rounded-lg text-xs flex items-center gap-2">
                     <AlertCircleIcon className="w-4 h-4 shrink-0" />
@@ -236,14 +236,14 @@ export default function MasterDataModal({ isOpen, onClose }: MasterDataModalProp
                       placeholder="Tahun Ajaran (2026/2027)"
                       value={tahunAjaran}
                       onChange={(e) => setTahunAjaran(e.target.value)}
-                      className="w-full px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 text-xs bg-white text-slate-900 font-bold border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 placeholder:text-slate-400 shadow-2xs"
                     />
                   </div>
                   <div>
                     <select
                       value={semester}
                       onChange={(e) => setSemester(e.target.value as 'Ganjil' | 'Genap')}
-                      className="w-full px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 text-xs bg-white text-slate-900 font-bold border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-2xs"
                     >
                       <option value="Ganjil">Ganjil</option>
                       <option value="Genap">Genap</option>
@@ -253,7 +253,7 @@ export default function MasterDataModal({ isOpen, onClose }: MasterDataModalProp
                     <button
                       type="submit"
                       disabled={savingTahun}
-                      className="w-full inline-flex items-center justify-center gap-1 px-3.5 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg cursor-pointer disabled:opacity-50"
+                      className="w-full inline-flex items-center justify-center gap-1 px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg cursor-pointer disabled:opacity-50 shadow-xs"
                     >
                       <PlusIcon className="w-3.5 h-3.5" />
                       <span>{savingTahun ? '...' : 'Tambah Semester'}</span>
@@ -265,7 +265,7 @@ export default function MasterDataModal({ isOpen, onClose }: MasterDataModalProp
               {/* List Tahun Semester */}
               <div className="border border-slate-200 rounded-xl overflow-hidden">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-100 text-slate-600 uppercase text-[10px] font-semibold">
+                  <thead className="bg-slate-100 text-slate-700 uppercase text-[10px] font-bold">
                     <tr>
                       <th className="px-4 py-2.5">Tahun Ajaran</th>
                       <th className="px-4 py-2.5">Semester</th>
@@ -275,10 +275,10 @@ export default function MasterDataModal({ isOpen, onClose }: MasterDataModalProp
                     {tahunList.length > 0 ? (
                       tahunList.map((t) => (
                         <tr key={t.id} className="hover:bg-slate-50">
-                          <td className="px-4 py-2.5 font-bold text-slate-800">{t.tahun_ajaran}</td>
-                          <td className="px-4 py-2.5 text-slate-600">
+                          <td className="px-4 py-2.5 font-bold text-slate-900">{t.tahun_ajaran}</td>
+                          <td className="px-4 py-2.5 text-slate-700">
                             <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                              t.semester === 'Ganjil' ? 'bg-indigo-50 text-indigo-700' : 'bg-emerald-50 text-emerald-700'
+                              t.semester === 'Ganjil' ? 'bg-indigo-100 text-indigo-900' : 'bg-emerald-100 text-emerald-900'
                             }`}>
                               {t.semester}
                             </span>
@@ -287,7 +287,7 @@ export default function MasterDataModal({ isOpen, onClose }: MasterDataModalProp
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={2} className="px-4 py-6 text-center text-slate-400">
+                        <td colSpan={2} className="px-4 py-6 text-center text-slate-400 font-medium">
                           Belum ada data tahun & semester.
                         </td>
                       </tr>
