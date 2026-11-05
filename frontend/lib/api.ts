@@ -129,6 +129,20 @@ export function getTemplateExcelUrl(): string {
   return `${API_BASE_URL}/siswa/download-template/`;
 }
 
+export function getExportExcelUrl(filters?: {
+  search?: string;
+  kelas?: string;
+  status_siswa?: string;
+}): string {
+  const params = new URLSearchParams();
+  if (filters?.search) params.append('search', filters.search);
+  if (filters?.kelas) params.append('kelas', filters.kelas);
+  if (filters?.status_siswa) params.append('status_siswa', filters.status_siswa);
+
+  const query = params.toString() ? `?${params.toString()}` : '';
+  return `${API_BASE_URL}/siswa/export-excel/${query}`;
+}
+
 export async function importSiswaExcel(file: File): Promise<ImportResult> {
   const formData = new FormData();
   formData.append('file', file);

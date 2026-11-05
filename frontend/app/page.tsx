@@ -6,12 +6,14 @@ import SiswaModal from '../components/SiswaModal';
 import BukuIndukModal from '../components/BukuIndukModal';
 import MasterDataModal from '../components/MasterDataModal';
 import ImportExcelModal from '../components/ImportExcelModal';
+import CetakBukuIndukModal from '../components/CetakBukuIndukModal';
 import {
   Siswa,
   getSiswaList,
   deleteSiswa,
   getMataPelajaranList,
   getTahunSemesterList,
+  getExportExcelUrl,
 } from '../lib/api';
 import {
   SearchIcon,
@@ -25,6 +27,8 @@ import {
   AlertCircleIcon,
   MapPinIcon,
   FileSpreadsheetIcon,
+  DownloadIcon,
+  PrinterIcon,
 } from '../components/Icons';
 
 export default function Home() {
@@ -48,6 +52,9 @@ export default function Home() {
 
   const [isMasterDataOpen, setIsMasterDataOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+
+  const [isCetakModalOpen, setIsCetakModalOpen] = useState(false);
+  const [selectedSiswaIdForCetak, setSelectedSiswaIdForCetak] = useState<number | null>(null);
 
   const loadData = useCallback(async (query: string = '', k: string = '', s: string = '') => {
     setLoading(true);
@@ -105,6 +112,11 @@ export default function Home() {
   const handleOpenBukuInduk = (id: number) => {
     setSelectedSiswaIdForBukuInduk(id);
     setIsBukuIndukOpen(true);
+  };
+
+  const handleOpenCetak = (id: number) => {
+    setSelectedSiswaIdForCetak(id);
+    setIsCetakModalOpen(true);
   };
 
   const handleDelete = async (siswa: Siswa) => {
@@ -220,7 +232,7 @@ export default function Home() {
               />
             </div>
 
-            {/* Filter Dropdowns */}
+            {/* Filter Dropdowns & Actions */}
             <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
               {/* Filter Kelas */}
               <select
@@ -248,6 +260,21 @@ export default function Home() {
                 <option value="Pindah">Status: Pindah</option>
                 <option value="Keluar">Status: Keluar</option>
               </select>
+
+              {/* Export Excel Link */}
+              <a
+                href={getExportExcelUrl({
+                  search,
+                  kelas: kelasFilter,
+                  status_siswa: statusFilter,
+                })}
+                download
+                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold text-slate-800 bg-white hover:bg-slate-50 border border-slate-300 rounded-xl transition-all cursor-pointer shadow-2xs"
+                title="Unduh seluruh data siswa dalam format Excel"
+              >
+                <DownloadIcon className="w-4 h-4 text-slate-600" />
+                <span>Export Excel</span>
+              </a>
 
               {/* Import Excel Button */}
               <button
@@ -372,7 +399,8 @@ export default function Home() {
 
                       {/* Actions */}
                       <td className="px-5 py-3.5 text-right">
-                        <div className="inline-flex items-center gap-1.5">
+                        <div className="inline-flex items-center gap-1">
+                          {/* Buku Induk & Nilai */}
                           <button
                             onClick={() => handleOpenBukuInduk(siswa.id)}
                             type="button"
@@ -383,6 +411,18 @@ export default function Home() {
                             <span>Buku Induk</span>
                           </button>
 
+                          {/* Cetak / PDF */}
+                          <button
+                            onClick={() => handleOpenCetak(siswa.id)}
+                            type="button"
+                            className="inline-flex items-center gap-1 px-2 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer shadow-2xs"
+                            title="Cetak Lembar Buku Induk ke PDF"
+                          >
+                            <PrinterIcon className="w-3.5 h-3.5 text-slate-600" />
+                            <span className="hidden sm:inline">Cetak PDF</span>
+                          </button>
+
+                          {/* Edit */}
                           <button
                             onClick={() => handleOpenEdit(siswa)}
                             type="button"
@@ -392,6 +432,7 @@ export default function Home() {
                             <EditIcon className="w-4 h-4" />
                           </button>
 
+                          {/* Hapus */}
                           <button
                             onClick={() => handleDelete(siswa)}
                             type="button"
@@ -428,7 +469,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white py-4 mt-auto">
+      <footer className="border-t border-slate-200 bg-white py-4 mt-auto print:hidden">
         <div className="max-w-7xl mx-auto px-4 text-center text-xs text-slate-400">
           Sistem Buku Induk Siswa &bull; Backend Django &amp; Frontend Next.js
         </div>
@@ -461,6 +502,12 @@ export default function Home() {
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
         onSuccess={() => loadData(search, kelasFilter, statusFilter)}
+      />
+
+      <CetakBukuIndukModal
+        isOpen={isCetakModalOpen}
+        onClose={() => setIsCetakModalOpen(false)}
+        siswaId={selectedSiswaIdForCetak}
       />
     </div>
   );

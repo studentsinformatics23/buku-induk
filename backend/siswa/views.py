@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from django.http import HttpResponse
 from datetime import datetime, date
 import openpyxl
-from openpyxl.styles import Font, PatternFill, Alignment
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
 from .models import Siswa, TahunSemester, MataPelajaran, NilaiSiswa
 from .serializers import (
@@ -26,6 +26,7 @@ class SiswaViewSet(viewsets.ModelViewSet):
     - Pengurutan (?ordering=...)
     - Detail nilai per siswa (/api/siswa/{id}/nilai/)
     - Download template Excel (/api/siswa/download-template/)
+    - Export data Excel (/api/siswa/export-excel/)
     - Import data Excel (/api/siswa/import-excel/)
     """
     queryset = Siswa.objects.all()
@@ -93,7 +94,6 @@ class SiswaViewSet(viewsets.ModelViewSet):
             cell.fill = header_fill
             cell.alignment = center_align
 
-        # Contoh data
         sample_rows = [
             [
                 "0081234567",
@@ -138,6 +138,93 @@ class SiswaViewSet(viewsets.ModelViewSet):
             content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
         response['Content-Disposition'] = 'attachment; filename="template_import_siswa.xlsx"'
+        wb.save(response)
+        return response
+
+    @action(detail=False, methods=['get'], url_path='export-excel')
+    def export_excel(self, request):
+        """Mengekspor data siswa terfilter ke berkas Excel (.xlsx) dengan format rapi."""
+        queryset = self.filter_queryset(self.get_queryset())
+
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Rekap Siswa"
+
+        headers = [
+            "No",
+            "NISN",
+            "Nama Lengkap",
+            "L/P",
+            "Kelas",
+            "Tempat Lahir",
+            "Tanggal Lahir",
+            "Agama",
+            "Status",
+            "Alamat",
+            "Nama Ayah",
+            "Nama Ibu",
+            "Pekerjaan Ortu",
+            "No. HP Ortu",
+        ]
+        ws.append(headers)
+
+        header_font = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
+        header_fill = PatternFill(start_color="1E40AF", end_color="1E40AF", fill_type="solid")
+        center_align = Alignment(horizontal="center", vertical="center")
+        left_align = Alignment(horizontal="left", vertical="center")
+
+        thin_side = Side(border_style="thin", color="CBD5E1")
+        cell_border = Border(top=thin_side, left=thin_side, right=thin_side, bottom=thin_side)
+
+        for col_num in range(1, len(headers) + 1):
+            cell = ws.cell(row=1, column=col_num)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = center_align
+
+        for i, s in enumerate(queryset, start=1):
+            row_data = [
+                i,
+                s.nisn,
+                s.nama_lengkap,
+                s.jenis_kelamin,
+                s.kelas,
+                s.tempat_lahir,
+                s.tanggal_lahir.strftime('%Y-%m-%d') if s.tanggal_lahir else '',
+                s.agama,
+                s.status_siswa,
+                s.alamat,
+                s.nama_ayah or '',
+                s.nama_ibu or '',
+                s.pekerjaan_ortu or '',
+                s.no_telepon_ortu or '',
+            ]
+            ws.append(row_data)
+
+            row_idx = i + 1
+            is_even = (i % 2 == 0)
+            row_fill = PatternFill(start_color="F8FAFC", end_color="F8FAFC", fill_type="solid") if is_even else None
+
+            for col_idx in range(1, len(headers) + 1):
+                cell = ws.cell(row=row_idx, column=col_idx)
+                cell.border = cell_border
+                if row_fill:
+                    cell.fill = row_fill
+                if col_idx in [1, 2, 4, 5, 7, 8, 9, 14]:
+                    cell.alignment = center_align
+                else:
+                    cell.alignment = left_align
+
+        widths = [6, 16, 26, 8, 14, 18, 16, 14, 12, 32, 22, 22, 20, 18]
+        for idx, width in enumerate(widths, 1):
+            col_letter = openpyxl.utils.get_column_letter(idx)
+            ws.column_dimensions[col_letter].width = width
+
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M')
+        response = HttpResponse(
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        response['Content-Disposition'] = f'attachment; filename="rekap_buku_induk_siswa_{timestamp}.xlsx"'
         wb.save(response)
         return response
 
@@ -235,7 +322,6 @@ class SiswaViewSet(viewsets.ModelViewSet):
                 continue
             nama = str(raw_nama).strip()
 
-            # Jenis Kelamin
             jk_str = str(raw_jk).strip().upper() if raw_jk else 'L'
             jenis_kelamin = 'P' if jk_str.startswith('P') else 'L'
 
