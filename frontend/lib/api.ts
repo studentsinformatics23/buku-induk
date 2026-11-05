@@ -4,9 +4,18 @@ export interface Siswa {
   id: number;
   nisn: string;
   nama_lengkap: string;
+  jenis_kelamin: 'L' | 'P';
+  jenis_kelamin_display?: string;
   tempat_lahir: string;
   tanggal_lahir: string;
+  agama: string;
   alamat: string;
+  kelas: string;
+  nama_ayah?: string;
+  nama_ibu?: string;
+  pekerjaan_ortu?: string;
+  no_telepon_ortu?: string;
+  status_siswa: 'Aktif' | 'Lulus' | 'Pindah' | 'Keluar';
   foto: string | null;
   foto_url: string | null;
   nilai_list?: NilaiSiswa[];
@@ -76,8 +85,17 @@ async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> 
 }
 
 // Siswa API
-export async function getSiswaList(search: string = ''): Promise<Siswa[]> {
-  const query = search ? `?search=${encodeURIComponent(search)}` : '';
+export async function getSiswaList(filters?: {
+  search?: string;
+  kelas?: string;
+  status_siswa?: string;
+}): Promise<Siswa[]> {
+  const params = new URLSearchParams();
+  if (filters?.search) params.append('search', filters.search);
+  if (filters?.kelas) params.append('kelas', filters.kelas);
+  if (filters?.status_siswa) params.append('status_siswa', filters.status_siswa);
+
+  const query = params.toString() ? `?${params.toString()}` : '';
   const data = await apiFetch<any>(`/siswa/${query}`);
   return Array.isArray(data) ? data : (data.results || []);
 }

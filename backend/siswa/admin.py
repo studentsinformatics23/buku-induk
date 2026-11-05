@@ -10,10 +10,39 @@ class NilaiSiswaInline(admin.TabularInline):
 
 @admin.register(Siswa)
 class SiswaAdmin(admin.ModelAdmin):
-    list_display = ('nisn', 'nama_lengkap', 'tempat_lahir', 'tanggal_lahir')
-    search_fields = ('nisn', 'nama_lengkap', 'alamat')
+    list_display = ('nisn', 'nama_lengkap', 'kelas', 'jenis_kelamin', 'status_siswa')
+    list_filter = ('kelas', 'jenis_kelamin', 'agama', 'status_siswa')
+    search_fields = ('nisn', 'nama_lengkap', 'alamat', 'kelas')
     list_per_page = 20
     inlines = [NilaiSiswaInline]
+    fieldsets = (
+        ('Data Pokok Siswa', {
+            'fields': (
+                'nisn',
+                'nama_lengkap',
+                'jenis_kelamin',
+                'kelas',
+                'tempat_lahir',
+                'tanggal_lahir',
+                'agama',
+                'status_siswa',
+                'foto',
+            )
+        }),
+        ('Alamat & Kontak', {
+            'fields': (
+                'alamat',
+                'no_telepon_ortu',
+            )
+        }),
+        ('Data Orang Tua / Wali', {
+            'fields': (
+                'nama_ayah',
+                'nama_ibu',
+                'pekerjaan_ortu',
+            )
+        }),
+    )
 
 
 @admin.register(TahunSemester)

@@ -21,6 +21,7 @@ import {
   CalendarIcon,
   MapPinIcon,
   AlertCircleIcon,
+  GraduationCapIcon,
 } from './Icons';
 
 interface BukuIndukModalProps {
@@ -123,6 +124,19 @@ export default function BukuIndukModal({
     return { grade: 'D', color: 'text-rose-700 bg-rose-50 border-rose-200' };
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Aktif':
+        return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+      case 'Lulus':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'Pindah':
+        return 'bg-amber-100 text-amber-800 border-amber-200';
+      default:
+        return 'bg-rose-100 text-rose-800 border-rose-200';
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
       <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200 my-6">
@@ -137,7 +151,7 @@ export default function BukuIndukModal({
                 Buku Induk Siswa
               </h3>
               <p className="text-xs text-slate-500 font-medium">
-                Profil lengkap & transkrip nilai akademik.
+                Profil lengkap &amp; transkrip nilai akademik standar Dapodik / Kemdikbud.
               </p>
             </div>
           </div>
@@ -147,7 +161,7 @@ export default function BukuIndukModal({
               type="button"
               className="px-3 py-1.5 text-xs font-bold text-slate-800 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer shadow-2xs"
             >
-              Cetak
+              Cetak Dokumen
             </button>
             <button
               onClick={onClose}
@@ -169,8 +183,9 @@ export default function BukuIndukModal({
           ) : siswa ? (
             <>
               {/* Profil Biodata Card */}
-              <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 flex flex-col sm:flex-row gap-5 items-center sm:items-start">
-                <div className="w-24 h-32 rounded-xl overflow-hidden bg-slate-200 border-2 border-white shadow-md shrink-0 flex items-center justify-center">
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 flex flex-col sm:flex-row gap-5 items-center sm:items-start shadow-xs">
+                {/* Foto 3x4 */}
+                <div className="w-28 h-36 rounded-xl overflow-hidden bg-slate-200 border-2 border-white shadow-md shrink-0 flex items-center justify-center">
                   {siswa.foto_url || siswa.foto ? (
                     <img
                       src={siswa.foto_url || siswa.foto || ''}
@@ -178,35 +193,93 @@ export default function BukuIndukModal({
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <UserIcon className="w-10 h-10 text-slate-400" />
+                    <UserIcon className="w-12 h-12 text-slate-400" />
                   )}
                 </div>
 
-                <div className="flex-1 w-full text-center sm:text-left">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2">
-                    <h2 className="text-xl font-bold text-slate-900">
-                      {siswa.nama_lengkap}
-                    </h2>
-                    <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-bold bg-blue-100 text-blue-900 border border-blue-200">
-                      NISN: {siswa.nisn}
-                    </span>
+                <div className="flex-1 w-full text-center sm:text-left space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <h2 className="text-xl font-extrabold text-slate-900">
+                        {siswa.nama_lengkap}
+                      </h2>
+                      <div className="flex flex-wrap items-center gap-1.5 mt-1 justify-center sm:justify-start">
+                        <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-blue-100 text-blue-900 border border-blue-200">
+                          NISN: {siswa.nisn}
+                        </span>
+                        <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-900 border border-indigo-200">
+                          Kelas: {siswa.kelas || '-'}
+                        </span>
+                        <span
+                          className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold border ${getStatusColor(
+                            siswa.status_siswa
+                          )}`}
+                        >
+                          Status: {siswa.status_siswa}
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-slate-700 font-medium mt-3 pt-3 border-t border-slate-200/60">
-                    <div className="flex items-center gap-2 justify-center sm:justify-start">
-                      <CalendarIcon className="w-4 h-4 text-slate-500 shrink-0" />
-                      <span>
-                        {siswa.tempat_lahir}, {new Date(siswa.tanggal_lahir).toLocaleDateString('id-ID', {
-                          day: 'numeric',
-                          month: 'long',
-                          year: 'numeric',
-                        })}
-                      </span>
+                  {/* 2-Kolom Informasi Standar Buku Induk */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-3 border-t border-slate-200">
+                    <div className="space-y-1.5 bg-white p-3 rounded-xl border border-slate-200/80">
+                      <p className="font-bold text-slate-900 uppercase text-[10px] tracking-wider mb-1 text-blue-700">
+                        Data Pribadi
+                      </p>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Jenis Kelamin:</span>
+                        <span className="font-semibold text-slate-800">
+                          {siswa.jenis_kelamin === 'L' ? 'Laki-laki (L)' : 'Perempuan (P)'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">TTL:</span>
+                        <span className="font-semibold text-slate-800">
+                          {siswa.tempat_lahir},{' '}
+                          {new Date(siswa.tanggal_lahir).toLocaleDateString('id-ID', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                          })}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Agama:</span>
+                        <span className="font-semibold text-slate-800">{siswa.agama || '-'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Alamat:</span>
+                        <span className="font-semibold text-slate-800 text-right line-clamp-2 max-w-[180px]">
+                          {siswa.alamat}
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="flex items-center gap-2 justify-center sm:justify-start">
-                      <MapPinIcon className="w-4 h-4 text-slate-500 shrink-0" />
-                      <span className="line-clamp-1">{siswa.alamat}</span>
+                    <div className="space-y-1.5 bg-white p-3 rounded-xl border border-slate-200/80">
+                      <p className="font-bold text-slate-900 uppercase text-[10px] tracking-wider mb-1 text-indigo-700">
+                        Data Orang Tua / Wali
+                      </p>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Nama Ayah:</span>
+                        <span className="font-semibold text-slate-800">{siswa.nama_ayah || '-'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Nama Ibu:</span>
+                        <span className="font-semibold text-slate-800">{siswa.nama_ibu || '-'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Pekerjaan:</span>
+                        <span className="font-semibold text-slate-800">
+                          {siswa.pekerjaan_ortu || '-'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">No. HP / WA:</span>
+                        <span className="font-semibold font-mono text-emerald-700">
+                          {siswa.no_telepon_ortu || '-'}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -253,7 +326,7 @@ export default function BukuIndukModal({
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div>
                         <label className="block text-[11px] font-bold text-slate-800 mb-1">
-                          Tahun & Semester
+                          Tahun &amp; Semester
                         </label>
                         <select
                           required
@@ -323,7 +396,7 @@ export default function BukuIndukModal({
                   <table className="w-full text-left text-xs">
                     <thead className="bg-slate-100 text-slate-700 font-bold border-b border-slate-200 uppercase tracking-wider text-[11px]">
                       <tr>
-                        <th className="px-4 py-3">Tahun & Semester</th>
+                        <th className="px-4 py-3">Tahun &amp; Semester</th>
                         <th className="px-4 py-3">Kode</th>
                         <th className="px-4 py-3">Mata Pelajaran</th>
                         <th className="px-4 py-3 text-center">Nilai Angka</th>

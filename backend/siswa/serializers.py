@@ -38,8 +38,8 @@ class NilaiSiswaSerializer(serializers.ModelSerializer):
 
 
 class SiswaSerializer(serializers.ModelSerializer):
-    # Menyediakan URL lengkap untuk foto siswa jika ada
     foto_url = serializers.SerializerMethodField()
+    jenis_kelamin_display = serializers.CharField(source='get_jenis_kelamin_display', read_only=True)
 
     class Meta:
         model = Siswa
@@ -47,9 +47,18 @@ class SiswaSerializer(serializers.ModelSerializer):
             'id',
             'nisn',
             'nama_lengkap',
+            'jenis_kelamin',
+            'jenis_kelamin_display',
             'tempat_lahir',
             'tanggal_lahir',
+            'agama',
             'alamat',
+            'kelas',
+            'nama_ayah',
+            'nama_ibu',
+            'pekerjaan_ortu',
+            'no_telepon_ortu',
+            'status_siswa',
             'foto',
             'foto_url',
         ]
@@ -69,4 +78,3 @@ class SiswaDetailSerializer(SiswaSerializer):
 
     class Meta(SiswaSerializer.Meta):
         fields = SiswaSerializer.Meta.fields + ['nilai_list']
-

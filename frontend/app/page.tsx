@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Navbar from '../components/Navbar';
 import SiswaModal from '../components/SiswaModal';
 import BukuIndukModal from '../components/BukuIndukModal';
@@ -30,6 +30,8 @@ import {
 export default function Home() {
   const [siswaList, setSiswaList] = useState<Siswa[]>([]);
   const [search, setSearch] = useState('');
+  const [kelasFilter, setKelasFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -47,12 +49,12 @@ export default function Home() {
   const [isMasterDataOpen, setIsMasterDataOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
-  const loadData = useCallback(async (query: string = '') => {
+  const loadData = useCallback(async (query: string = '', k: string = '', s: string = '') => {
     setLoading(true);
     setServerError(null);
     try {
       const [siswa, mapel, semester] = await Promise.all([
-        getSiswaList(query),
+        getSiswaList({ search: query, kelas: k, status_siswa: s }),
         getMataPelajaranList().catch(() => []),
         getTahunSemesterList().catch(() => []),
       ]);
@@ -70,16 +72,25 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    loadData(search, kelasFilter, statusFilter);
+  }, [loadData, kelasFilter, statusFilter]);
 
   // Debounced search
   useEffect(() => {
     const timer = setTimeout(() => {
-      loadData(search);
+      loadData(search, kelasFilter, statusFilter);
     }, 350);
     return () => clearTimeout(timer);
-  }, [search, loadData]);
+  }, [search, kelasFilter, statusFilter, loadData]);
+
+  // Unique list of classes for dropdown
+  const uniqueClasses = useMemo(() => {
+    const setClasses = new Set<string>();
+    siswaList.forEach((s) => {
+      if (s.kelas && s.kelas !== '-') setClasses.add(s.kelas);
+    });
+    return Array.from(setClasses).sort();
+  }, [siswaList]);
 
   const handleOpenAdd = () => {
     setSelectedSiswaForEdit(null);
@@ -107,9 +118,22 @@ export default function Home() {
 
     try {
       await deleteSiswa(siswa.id);
-      loadData(search);
+      loadData(search, kelasFilter, statusFilter);
     } catch (err: any) {
       alert('Gagal menghapus siswa: ' + err.message);
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'Aktif':
+        return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+      case 'Lulus':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'Pindah':
+        return 'bg-amber-100 text-amber-800 border-amber-200';
+      default:
+        return 'bg-rose-100 text-rose-800 border-rose-200';
     }
   };
 
@@ -117,7 +141,7 @@ export default function Home() {
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <Navbar
         loading={loading}
-        onRefresh={() => loadData(search)}
+        onRefresh={() => loadData(search, kelasFilter, statusFilter)}
         onOpenMasterData={() => setIsMasterDataOpen(true)}
       />
 
@@ -128,9 +152,7 @@ export default function Home() {
             <AlertCircleIcon className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
             <div className="flex-1 text-xs sm:text-sm">
               <p className="font-bold">Koneksi Backend Belum Terhubung</p>
-              <p className="text-amber-700 mt-0.5">
-                {serverError}
-              </p>
+              <p className="text-amber-700 mt-0.5">{serverError}</p>
               <div className="mt-2 text-xs font-mono bg-white/70 p-2 rounded-lg inline-block border border-amber-200 text-amber-950">
                 cd backend &amp;&amp; python manage.py runserver
               </div>
@@ -171,7 +193,7 @@ export default function Home() {
           <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Tahun & Semester
+                Tahun &amp; Semester
               </p>
               <p className="text-2xl font-extrabold text-slate-900 mt-1">
                 {totalSemester}
@@ -183,71 +205,103 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Action Bar (Search, Import Excel, Tambah Siswa) */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs mb-6 flex flex-col sm:flex-row gap-3 items-center justify-between">
-          <div className="relative w-full sm:w-96">
-            <SearchIcon className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Cari berdasarkan NISN, Nama, atau Alamat..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white text-slate-900 font-semibold border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 placeholder:text-slate-400 transition-all shadow-2xs"
-            />
-          </div>
+        {/* Action Bar & Filters */}
+        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs mb-6 space-y-3">
+          <div className="flex flex-col lg:flex-row gap-3 items-center justify-between">
+            {/* Search Input */}
+            <div className="relative w-full lg:w-96">
+              <SearchIcon className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Cari berdasarkan NISN, Nama, atau Alamat..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 text-xs sm:text-sm bg-white text-slate-900 font-semibold border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 placeholder:text-slate-400 transition-all shadow-2xs"
+              />
+            </div>
 
-          <div className="flex items-center gap-2.5 w-full sm:w-auto">
-            <button
-              onClick={() => setIsImportModalOpen(true)}
-              type="button"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl transition-all cursor-pointer shadow-2xs"
-            >
-              <FileSpreadsheetIcon className="w-4 h-4 text-emerald-700" />
-              <span>Import Excel</span>
-            </button>
+            {/* Filter Dropdowns */}
+            <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+              {/* Filter Kelas */}
+              <select
+                value={kelasFilter}
+                onChange={(e) => setKelasFilter(e.target.value)}
+                className="px-3 py-2 text-xs bg-white text-slate-900 font-bold border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-2xs"
+              >
+                <option value="">Semua Kelas</option>
+                {uniqueClasses.map((k) => (
+                  <option key={k} value={k}>
+                    Kelas {k}
+                  </option>
+                ))}
+              </select>
 
-            <button
-              onClick={handleOpenAdd}
-              type="button"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition-all cursor-pointer shrink-0"
-            >
-              <PlusIcon className="w-4 h-4" />
-              <span>Tambah Data Siswa</span>
-            </button>
+              {/* Filter Status */}
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-3 py-2 text-xs bg-white text-slate-900 font-bold border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-2xs"
+              >
+                <option value="">Semua Status</option>
+                <option value="Aktif">Status: Aktif</option>
+                <option value="Lulus">Status: Lulus</option>
+                <option value="Pindah">Status: Pindah</option>
+                <option value="Keluar">Status: Keluar</option>
+              </select>
+
+              {/* Import Excel Button */}
+              <button
+                onClick={() => setIsImportModalOpen(true)}
+                type="button"
+                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl transition-all cursor-pointer shadow-2xs"
+              >
+                <FileSpreadsheetIcon className="w-4 h-4 text-emerald-700" />
+                <span>Import Excel</span>
+              </button>
+
+              {/* Tambah Siswa Button */}
+              <button
+                onClick={handleOpenAdd}
+                type="button"
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition-all cursor-pointer shrink-0"
+              >
+                <PlusIcon className="w-4 h-4" />
+                <span>Tambah Siswa</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Tabel Data Siswa */}
+        {/* Tabel Data Siswa Standar Dapodik */}
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs sm:text-sm">
               <thead className="bg-slate-50 text-slate-600 font-semibold uppercase text-[11px] tracking-wider border-b border-slate-200">
                 <tr>
-                  <th className="px-6 py-3.5 w-16">Foto</th>
-                  <th className="px-6 py-3.5">NISN</th>
-                  <th className="px-6 py-3.5">Nama Lengkap</th>
-                  <th className="px-6 py-3.5">Tempat & Tanggal Lahir</th>
-                  <th className="px-6 py-3.5">Alamat</th>
-                  <th className="px-6 py-3.5 text-right">Aksi</th>
+                  <th className="px-5 py-3.5 w-14">Foto</th>
+                  <th className="px-5 py-3.5">NISN</th>
+                  <th className="px-5 py-3.5">Nama Siswa</th>
+                  <th className="px-4 py-3.5">Kelas</th>
+                  <th className="px-4 py-3.5">L/P</th>
+                  <th className="px-5 py-3.5">Tempat &amp; Tgl Lahir</th>
+                  <th className="px-4 py-3.5">Status</th>
+                  <th className="px-5 py-3.5 text-right">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {loading && siswaList.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-16 text-center text-slate-400">
+                    <td colSpan={8} className="px-6 py-16 text-center text-slate-400">
                       <div className="inline-block w-6 h-6 border-3 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
                       <p className="mt-2 text-xs font-medium">Memuat data siswa...</p>
                     </td>
                   </tr>
                 ) : siswaList.length > 0 ? (
                   siswaList.map((siswa) => (
-                    <tr
-                      key={siswa.id}
-                      className="hover:bg-slate-50/80 transition-colors group"
-                    >
+                    <tr key={siswa.id} className="hover:bg-slate-50/80 transition-colors group">
                       {/* Foto */}
-                      <td className="px-6 py-4">
-                        <div className="w-10 h-12 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center shrink-0">
+                      <td className="px-5 py-3.5">
+                        <div className="w-9 h-11 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center shrink-0">
                           {siswa.foto_url || siswa.foto ? (
                             <img
                               src={siswa.foto_url || siswa.foto || ''}
@@ -261,18 +315,41 @@ export default function Home() {
                       </td>
 
                       {/* NISN */}
-                      <td className="px-6 py-4 font-mono font-bold text-blue-700">
+                      <td className="px-5 py-3.5 font-mono font-bold text-blue-700">
                         {siswa.nisn}
                       </td>
 
                       {/* Nama Lengkap */}
-                      <td className="px-6 py-4 font-semibold text-slate-900">
-                        {siswa.nama_lengkap}
+                      <td className="px-5 py-3.5 font-semibold text-slate-900">
+                        <div>{siswa.nama_lengkap}</div>
+                        <div className="text-[11px] text-slate-400 font-normal">
+                          Agama: {siswa.agama || '-'}
+                        </div>
+                      </td>
+
+                      {/* Kelas */}
+                      <td className="px-4 py-3.5">
+                        <span className="inline-block px-2.5 py-0.5 rounded-md text-xs font-bold bg-slate-100 text-slate-800 border border-slate-200">
+                          {siswa.kelas || '-'}
+                        </span>
+                      </td>
+
+                      {/* Gender L/P */}
+                      <td className="px-4 py-3.5">
+                        <span
+                          className={`inline-block px-2 py-0.5 rounded-md text-xs font-extrabold ${
+                            siswa.jenis_kelamin === 'L'
+                              ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                              : 'bg-pink-50 text-pink-700 border border-pink-200'
+                          }`}
+                        >
+                          {siswa.jenis_kelamin || 'L'}
+                        </span>
                       </td>
 
                       {/* TTL */}
-                      <td className="px-6 py-4 text-slate-600 text-xs">
-                        <div>{siswa.tempat_lahir}</div>
+                      <td className="px-5 py-3.5 text-slate-600 text-xs">
+                        <div className="font-medium text-slate-800">{siswa.tempat_lahir}</div>
                         <div className="text-slate-400">
                           {new Date(siswa.tanggal_lahir).toLocaleDateString('id-ID', {
                             day: 'numeric',
@@ -282,21 +359,24 @@ export default function Home() {
                         </div>
                       </td>
 
-                      {/* Alamat */}
-                      <td className="px-6 py-4 text-slate-600 max-w-xs truncate text-xs">
-                        <div className="flex items-center gap-1.5">
-                          <MapPinIcon className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                          <span className="truncate">{siswa.alamat}</span>
-                        </div>
+                      {/* Status Siswa */}
+                      <td className="px-4 py-3.5">
+                        <span
+                          className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${getStatusBadge(
+                            siswa.status_siswa
+                          )}`}
+                        >
+                          {siswa.status_siswa}
+                        </span>
                       </td>
 
                       {/* Actions */}
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-5 py-3.5 text-right">
                         <div className="inline-flex items-center gap-1.5">
                           <button
                             onClick={() => handleOpenBukuInduk(siswa.id)}
                             type="button"
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors cursor-pointer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors cursor-pointer shadow-2xs"
                             title="Buku Induk & Nilai"
                           >
                             <FileTextIcon className="w-3.5 h-3.5" />
@@ -326,15 +406,17 @@ export default function Home() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={6} className="px-6 py-16 text-center text-slate-400">
+                    <td colSpan={8} className="px-6 py-16 text-center text-slate-400">
                       <UserIcon className="w-10 h-10 text-slate-300 mx-auto mb-2" />
                       <p className="text-sm font-semibold text-slate-700">
-                        {search ? 'Tidak ada siswa yang sesuai pencarian.' : 'Belum ada data siswa.'}
+                        {search || kelasFilter || statusFilter
+                          ? 'Tidak ada siswa yang sesuai filter pencarian.'
+                          : 'Belum ada data siswa.'}
                       </p>
                       <p className="text-xs text-slate-400 mt-1">
-                        {search
-                          ? 'Coba gunakan kata kunci pencarian yang lain.'
-                          : 'Klik tombol "Tambah Data Siswa" atau "Import Excel" di atas untuk menambahkan data siswa.'}
+                        {search || kelasFilter || statusFilter
+                          ? 'Coba atur ulang kata kunci atau filter kelas & status.'
+                          : 'Klik tombol "Tambah Siswa" atau "Import Excel" di atas untuk menambahkan data siswa.'}
                       </p>
                     </td>
                   </tr>
@@ -356,7 +438,7 @@ export default function Home() {
       <SiswaModal
         isOpen={isSiswaModalOpen}
         onClose={() => setIsSiswaModalOpen(false)}
-        onSuccess={() => loadData(search)}
+        onSuccess={() => loadData(search, kelasFilter, statusFilter)}
         siswaToEdit={selectedSiswaForEdit}
       />
 
@@ -364,21 +446,21 @@ export default function Home() {
         isOpen={isBukuIndukOpen}
         onClose={() => setIsBukuIndukOpen(false)}
         siswaId={selectedSiswaIdForBukuInduk}
-        onUpdated={() => loadData(search)}
+        onUpdated={() => loadData(search, kelasFilter, statusFilter)}
       />
 
       <MasterDataModal
         isOpen={isMasterDataOpen}
         onClose={() => {
           setIsMasterDataOpen(false);
-          loadData(search);
+          loadData(search, kelasFilter, statusFilter);
         }}
       />
 
       <ImportExcelModal
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
-        onSuccess={() => loadData(search)}
+        onSuccess={() => loadData(search, kelasFilter, statusFilter)}
       />
     </div>
   );

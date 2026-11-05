@@ -21,6 +21,8 @@ class SiswaViewSet(viewsets.ModelViewSet):
     API endpoint untuk mengelola data Siswa (CRUD).
     Mendukung:
     - Pencarian (?search=...)
+    - Filter Kelas (?kelas=...)
+    - Filter Status (?status_siswa=...)
     - Pengurutan (?ordering=...)
     - Detail nilai per siswa (/api/siswa/{id}/nilai/)
     - Download template Excel (/api/siswa/download-template/)
@@ -28,9 +30,21 @@ class SiswaViewSet(viewsets.ModelViewSet):
     """
     queryset = Siswa.objects.all()
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['nisn', 'nama_lengkap', 'alamat', 'tempat_lahir']
-    ordering_fields = ['nisn', 'nama_lengkap', 'tanggal_lahir', 'id']
+    search_fields = ['nisn', 'nama_lengkap', 'alamat', 'tempat_lahir', 'kelas', 'status_siswa']
+    ordering_fields = ['nisn', 'nama_lengkap', 'tanggal_lahir', 'kelas', 'status_siswa', 'id']
     ordering = ['nama_lengkap']
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        kelas = self.request.query_params.get('kelas')
+        status_siswa = self.request.query_params.get('status_siswa')
+
+        if kelas:
+            queryset = queryset.filter(kelas__iexact=kelas)
+        if status_siswa:
+            queryset = queryset.filter(status_siswa__iexact=status_siswa)
+
+        return queryset
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
@@ -47,12 +61,26 @@ class SiswaViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], url_path='download-template')
     def download_template(self, request):
-        """Menghasilkan file template Excel (.xlsx) untuk import data siswa."""
+        """Menghasilkan file template Excel (.xlsx) untuk import data siswa sesuai standar."""
         wb = openpyxl.Workbook()
         ws = wb.active
         ws.title = "Data Siswa"
 
-        headers = ["NISN", "Nama Lengkap", "Tempat Lahir", "Tanggal Lahir (YYYY-MM-DD)", "Alamat"]
+        headers = [
+            "NISN",
+            "Nama Lengkap",
+            "Jenis Kelamin (L/P)",
+            "Tempat Lahir",
+            "Tanggal Lahir (YYYY-MM-DD)",
+            "Agama",
+            "Kelas",
+            "Alamat",
+            "Nama Ayah",
+            "Nama Ibu",
+            "Pekerjaan Ortu",
+            "No HP Ortu",
+            "Status (Aktif/Lulus/Pindah/Keluar)",
+        ]
         ws.append(headers)
 
         header_font = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
@@ -67,13 +95,41 @@ class SiswaViewSet(viewsets.ModelViewSet):
 
         # Contoh data
         sample_rows = [
-            ["0081234567", "Muhammad Dani", "Bandung", "2008-04-12", "Jl. Asia Afrika No. 45"],
-            ["0089876543", "Siti Nurhaliza", "Jakarta", "2008-09-25", "Jl. Sudirman No. 12B"],
+            [
+                "0081234567",
+                "Muhammad Dani",
+                "L",
+                "Bandung",
+                "2008-04-12",
+                "Islam",
+                "X RPL 1",
+                "Jl. Asia Afrika No. 45",
+                "Ahmad Subarjo",
+                "Siti Aminah",
+                "Wiraswasta",
+                "081234567890",
+                "Aktif",
+            ],
+            [
+                "0089876543",
+                "Siti Nurhaliza",
+                "P",
+                "Jakarta",
+                "2008-09-25",
+                "Islam",
+                "X RPL 1",
+                "Jl. Sudirman No. 12B",
+                "Bambang Irawan",
+                "Nur Fatimah",
+                "PNS",
+                "081987654321",
+                "Aktif",
+            ],
         ]
         for row in sample_rows:
             ws.append(row)
 
-        widths = [18, 25, 20, 30, 35]
+        widths = [18, 25, 20, 20, 26, 16, 16, 32, 22, 22, 20, 18, 24]
         for idx, width in enumerate(widths, 1):
             col_letter = openpyxl.utils.get_column_letter(idx)
             ws.column_dimensions[col_letter].width = width
@@ -121,11 +177,25 @@ class SiswaViewSet(viewsets.ModelViewSet):
 
         header = [str(h).strip().lower() if h else '' for h in rows[0]]
 
-        nisn_idx = next((i for i, h in enumerate(header) if 'nisn' in h), 0)
-        nama_idx = next((i for i, h in enumerate(header) if 'nama' in h), 1)
-        tempat_idx = next((i for i, h in enumerate(header) if 'tempat' in h), 2)
-        tgl_idx = next((i for i, h in enumerate(header) if 'tanggal' in h or 'tgl' in h), 3)
-        alamat_idx = next((i for i, h in enumerate(header) if 'alamat' in h), 4)
+        def find_col(keywords, default_idx):
+            for i, h in enumerate(header):
+                if any(k in h for k in keywords):
+                    return i
+            return default_idx
+
+        nisn_idx = find_col(['nisn'], 0)
+        nama_idx = find_col(['nama lengkap', 'nama'], 1)
+        jk_idx = find_col(['kelamin', 'gender', 'jk'], 2)
+        tempat_idx = find_col(['tempat lahir', 'tempat'], 3)
+        tgl_idx = find_col(['tanggal', 'tgl', 'lahir'], 4)
+        agama_idx = find_col(['agama'], 5)
+        kelas_idx = find_col(['kelas', 'rombel'], 6)
+        alamat_idx = find_col(['alamat'], 7)
+        ayah_idx = find_col(['ayah'], 8)
+        ibu_idx = find_col(['ibu'], 9)
+        pekerjaan_idx = find_col(['pekerjaan'], 10)
+        hp_idx = find_col(['hp', 'telepon', 'telp', 'wa'], 11)
+        status_idx = find_col(['status'], 12)
 
         created_count = 0
         updated_count = 0
@@ -135,11 +205,22 @@ class SiswaViewSet(viewsets.ModelViewSet):
             if not any(row):
                 continue
 
-            raw_nisn = row[nisn_idx] if len(row) > nisn_idx else None
-            raw_nama = row[nama_idx] if len(row) > nama_idx else None
-            raw_tempat = row[tempat_idx] if len(row) > tempat_idx else None
-            raw_tgl = row[tgl_idx] if len(row) > tgl_idx else None
-            raw_alamat = row[alamat_idx] if len(row) > alamat_idx else None
+            def get_val(idx):
+                return row[idx] if len(row) > idx else None
+
+            raw_nisn = get_val(nisn_idx)
+            raw_nama = get_val(nama_idx)
+            raw_jk = get_val(jk_idx)
+            raw_tempat = get_val(tempat_idx)
+            raw_tgl = get_val(tgl_idx)
+            raw_agama = get_val(agama_idx)
+            raw_kelas = get_val(kelas_idx)
+            raw_alamat = get_val(alamat_idx)
+            raw_ayah = get_val(ayah_idx)
+            raw_ibu = get_val(ibu_idx)
+            raw_pekerjaan = get_val(pekerjaan_idx)
+            raw_hp = get_val(hp_idx)
+            raw_status = get_val(status_idx)
 
             if not raw_nisn:
                 errors.append(f"Baris {row_num}: NISN tidak boleh kosong.")
@@ -154,8 +235,24 @@ class SiswaViewSet(viewsets.ModelViewSet):
                 continue
             nama = str(raw_nama).strip()
 
+            # Jenis Kelamin
+            jk_str = str(raw_jk).strip().upper() if raw_jk else 'L'
+            jenis_kelamin = 'P' if jk_str.startswith('P') else 'L'
+
             tempat = str(raw_tempat).strip() if raw_tempat else '-'
+            agama = str(raw_agama).strip() if raw_agama else 'Islam'
+            kelas = str(raw_kelas).strip() if raw_kelas else '-'
             alamat = str(raw_alamat).strip() if raw_alamat else '-'
+            nama_ayah = str(raw_ayah).strip() if raw_ayah else ''
+            nama_ibu = str(raw_ibu).strip() if raw_ibu else ''
+            pekerjaan = str(raw_pekerjaan).strip() if raw_pekerjaan else ''
+            no_hp = str(raw_hp).strip() if raw_hp else ''
+            if no_hp.endswith('.0'):
+                no_hp = no_hp[:-2]
+
+            status_siswa = str(raw_status).strip().capitalize() if raw_status else 'Aktif'
+            if status_siswa not in ['Aktif', 'Lulus', 'Pindah', 'Keluar']:
+                status_siswa = 'Aktif'
 
             parsed_date = None
             if isinstance(raw_tgl, (datetime, date)):
@@ -182,9 +279,17 @@ class SiswaViewSet(viewsets.ModelViewSet):
                 nisn=nisn,
                 defaults={
                     'nama_lengkap': nama,
+                    'jenis_kelamin': jenis_kelamin,
                     'tempat_lahir': tempat,
                     'tanggal_lahir': parsed_date,
+                    'agama': agama,
+                    'kelas': kelas,
                     'alamat': alamat,
+                    'nama_ayah': nama_ayah,
+                    'nama_ibu': nama_ibu,
+                    'pekerjaan_ortu': pekerjaan,
+                    'no_telepon_ortu': no_hp,
+                    'status_siswa': status_siswa,
                 }
             )
 
