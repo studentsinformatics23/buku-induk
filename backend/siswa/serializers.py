@@ -69,3 +69,4 @@ class SiswaDetailSerializer(SiswaSerializer):
 
     class Meta(SiswaSerializer.Meta):
         fields = SiswaSerializer.Meta.fields + ['nilai_list']
+

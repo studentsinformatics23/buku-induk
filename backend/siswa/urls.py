@@ -16,3 +16,4 @@ router.register(r'nilai', NilaiSiswaViewSet, basename='nilai')
 urlpatterns = [
     path('', include(router.urls)),
 ]
+
