@@ -1,5 +1,9 @@
 # Aplikasi Buku Induk Santri Pondok Pesantren Miftahul Huda Al-Faqih
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Framework: Django](https://img.shields.io/badge/Backend-Django%204.2%20REST-092E20?logo=django)](https://www.djangoproject.com/)
+[![Framework: Next.js](https://img.shields.io/badge/Frontend-Next.js%2016-black?logo=next.js)](https://nextjs.org/)
+
 Aplikasi Sistem Informasi **Buku Induk Santri dan Rekapitulasi Nilai Akademik** untuk **Pondok Pesantren Miftahul Huda Al-Faqih** (di bawah naungan **Yayasan Al-Faqih**, Manonjaya, Kabupaten Tasikmalaya, Jawa Barat).
 
 Aplikasi dibangun dengan arsitektur monorepo modern yang menggabungkan backend handal (**Django 4.2 REST Framework**) dan frontend adaptif berkecepatan tinggi (**Next.js 16 App Router, React & Tailwind CSS**).
@@ -302,8 +306,8 @@ Pada modul cetak lembar buku induk / rapor santri ([CetakBukuIndukModal.tsx](fil
 
 ---
 
-## Lisensi & Pengembang
+## Lisensi & Hak Cipta
 
-Aplikasi ini dikembangkan untuk keperluan operasional dan tata kelola administrasi akademik **Pondok Pesantren Miftahul Huda Al-Faqih / SMA IT Al-Faqih**, Manonjaya, Kabupaten Tasikmalaya.
+Aplikasi ini dilisensikan secara resmi di bawah lisensi **[MIT License](LICENSE)**. Anda bebas menggunakan, memodifikasi, dan mengembangkan perangkat lunak ini dengan tetap menyertakan hak cipta dan atribusi asli.
 
-Hak Cipta &copy; 2026 **Pondok Pesantren Miftahul Huda Al-Faqih & Yayasan Al-Faqih**. Seluruh hak cipta dilindungi.
+Hak Cipta &copy; 2026 **Pondok Pesantren Miftahul Huda Al-Faqih, Yayasan Al-Faqih & Tim Pengembang (Informatics 23)**. Seluruh hak cipta dilindungi.
