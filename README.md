@@ -292,7 +292,7 @@ Seluruh endpoint API berada di bawah prefiks `/api/`. Autentikasi menggunakan he
 
 Pada modul cetak lembar buku induk / rapor santri ([CetakBukuIndukModal.tsx](file:///d:/isep/Isep/Project%20Magang/buku_induk/frontend/components/CetakBukuIndukModal.tsx)), format dokumen mengikuti standar kedinasan:
 
-- **Logo**: Menggunakan logo resmi pondok pesantren (segi enam hijau Al-Faqih) di sisi kiri dan kanan kop surat.
+- **Logo**: Menggunakan logo resmi pondok pesantren (segi enam hijau Al-Faqih) di sisi kiri kop surat.
 - **Nama Yayasan**: `YAYASAN AL-FAQIH`
 - **Nama Lembaga**: `PONDOK PESANTREN MIFTAHUL HUDA AL-FAQIH`
 - **Unit Satuan Pendidikan**: `SEKOLAH MENENGAH ATAS ISLAM TERPADU AL-FAQIH (SMA IT AL-FAQIH)`

@@ -135,14 +135,11 @@ export default function CetakBukuIndukModal({
                   </p>
                 </div>
 
-                {/* Logo Kanan */}
-                <div className="w-20 h-20 sm:w-24 sm:h-24 shrink-0 flex items-center justify-center p-0.5">
-                  <img
-                    src="/logo_kop.png"
-                    alt="Logo Yayasan Al-Faqih"
-                    className="w-full h-full object-contain"
-                  />
-                </div>
+                {/* Spacer Kanan agar teks kop surat tetap presisi di tengah lembar */}
+                <div
+                  className="w-20 h-20 sm:w-24 sm:h-24 shrink-0 invisible pointer-events-none"
+                  aria-hidden="true"
+                />
               </div>
 
               {/* JUDUL LEMBAR */}
