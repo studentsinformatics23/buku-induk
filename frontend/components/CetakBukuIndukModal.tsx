@@ -98,33 +98,48 @@ export default function CetakBukuIndukModal({
             </div>
           ) : siswa ? (
             <div id="print-area" className="max-w-[760px] mx-auto text-xs leading-relaxed space-y-4 print:text-[11px] print:leading-normal">
-              {/* KOP SURAT RESMI PONDOK PESANTREN */}
-              <div className="pb-3 border-b-4 border-double border-slate-900 flex items-center justify-between gap-3">
-                <div className="w-20 h-20 shrink-0 flex items-center justify-center p-1">
+              {/* KOP SURAT RESMI */}
+              <div className="pb-3 border-b-4 border-double border-slate-900 flex items-center justify-between gap-3 sm:gap-4">
+                {/* Logo Kiri (Logo Resmi Hexagon Yayasan Al-Faqih / Ponpes) */}
+                <div className="w-20 h-20 sm:w-24 sm:h-24 shrink-0 flex items-center justify-center p-0.5">
                   <img
-                    src="/logo.png"
-                    alt="Logo Pondok Pesantren Miftahul Huda Al-Faqih"
+                    src="/logo_kop.png"
+                    alt="Logo Yayasan Al-Faqih Pondok Pesantren Miftahul Huda"
                     className="w-full h-full object-contain"
                   />
                 </div>
+
+                {/* Teks Identitas Lembaga & Yayasan */}
                 <div className="flex-1 text-center">
-                  <div className="font-serif uppercase tracking-widest text-[11px] font-bold text-slate-700">
-                    YAYASAN PONDOK PESANTREN MIFTAHUL HUDA
+                  <div className="font-serif uppercase tracking-widest text-[12px] sm:text-sm font-extrabold text-slate-800">
+                    YAYASAN AL-FAQIH
                   </div>
-                  <div className="font-serif uppercase tracking-wider text-base sm:text-lg font-black text-slate-950 mt-0.5">
+                  <div className="font-serif uppercase tracking-wider text-sm sm:text-base md:text-lg font-black text-slate-950 mt-0.5 leading-tight">
                     PONDOK PESANTREN MIFTAHUL HUDA AL-FAQIH
                   </div>
                   <div className="font-serif uppercase text-xs sm:text-sm font-extrabold text-blue-900 mt-0.5">
-                    BUKU INDUK DATA SANTRI &amp; REKAPITULASI HASIL EVALUASI BELAJAR
+                    SEKOLAH MENENGAH ATAS ISLAM TERPADU AL-FAQIH (SMA IT AL-FAQIH)
                   </div>
-                  <p className="text-[10px] text-slate-600 mt-0.5 font-medium">
-                    Sekretariat &amp; Kantor Pengasuhan Santri &bull; Akta Notaris &amp; Kemenag RI
+                  <div className="text-[10px] sm:text-[11px] font-bold text-slate-800 mt-0.5 flex items-center justify-center gap-1.5 flex-wrap">
+                    <span className="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-900 border border-emerald-300 font-extrabold text-[9.5px]">
+                      TERAKREDITASI A
+                    </span>
+                    <span>&bull;</span>
+                    <span className="font-mono">NPSN: 69983922</span>
+                  </div>
+                  <p className="text-[9.5px] sm:text-[10px] text-slate-600 mt-1 leading-snug">
+                    Alamat: Jl. Gunungtanjung Dusun Cisitu Kidul RT. 012 RW. 005 Desa Kalimanggis, Kec. Manonjaya (46197)
+                  </p>
+                  <p className="text-[9.5px] sm:text-[10px] text-slate-600 leading-snug">
+                    Telp. (0851 8776 1692) &bull; Email: smaitalfaqih19@gmail.com &bull; Manonjaya, Kab. Tasikmalaya
                   </p>
                 </div>
-                <div className="w-20 h-20 shrink-0 hidden sm:flex items-center justify-center p-1 opacity-90">
+
+                {/* Logo Kanan */}
+                <div className="w-20 h-20 sm:w-24 sm:h-24 shrink-0 flex items-center justify-center p-0.5">
                   <img
-                    src="/logo.png"
-                    alt="Logo Pondok Pesantren Miftahul Huda Al-Faqih"
+                    src="/logo_kop.png"
+                    alt="Logo Yayasan Al-Faqih"
                     className="w-full h-full object-contain"
                   />
                 </div>
@@ -321,7 +336,7 @@ export default function CetakBukuIndukModal({
               {/* BAGIAN IV: PENGESAHAN DOKUMEN & TANDA TANGAN */}
               <div className="pt-6 break-inside-avoid">
                 <div className="text-right mb-6 text-[11px] font-medium text-slate-800">
-                  Ditetapkan di: Tasikmalaya<br />
+                  Ditetapkan di: Manonjaya, Tasikmalaya<br />
                   Pada tanggal: {todayFormatted}
                 </div>
 
@@ -335,21 +350,21 @@ export default function CetakBukuIndukModal({
                   </div>
 
                   <div>
-                    <p className="font-semibold text-slate-700">Wali Kelas / Asatidz,</p>
+                    <p className="font-semibold text-slate-700">Wali Kelas,</p>
                     <div className="h-16"></div>
                     <p className="font-bold underline text-slate-900">
                       ( .................................... )
                     </p>
-                    <p className="text-[10px] text-slate-500">NIY / NIP. ..........................</p>
+                    <p className="text-[10px] text-slate-500">NIP / NIY. ..........................</p>
                   </div>
 
                   <div>
-                    <p className="font-semibold text-slate-700">Pimpinan Pondok Pesantren,</p>
+                    <p className="font-semibold text-slate-700">Kepala Sekolah / Pimpinan,</p>
                     <div className="h-16"></div>
                     <p className="font-bold underline text-slate-900">
-                      KH. Miftahul Huda Al-Faqih
+                      Aldi Pratama Mustawan, S.Ag
                     </p>
-                    <p className="text-[10px] text-slate-500">Pengasuh Pondok Pesantren</p>
+                    <p className="text-[10px] text-slate-500">NIP / NUPTK. ..........................</p>
                   </div>
                 </div>
               </div>
