@@ -10,6 +10,7 @@ import ImportExcelModal from '../components/ImportExcelModal';
 import CetakBukuIndukModal from '../components/CetakBukuIndukModal';
 import UserManagementModal from '../components/UserManagementModal';
 import PortalSiswaView from '../components/PortalSiswaView';
+import { DAFTAR_PILIHAN_KELAS, ALL_KELAS_VALUES } from '../lib/kelas';
 import {
   Siswa,
   getSiswaList,
@@ -139,11 +140,13 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, [search, kelasFilter, statusFilter, loadData, authChecked]);
 
-  // Unique list of classes for dropdown
-  const uniqueClasses = useMemo(() => {
+  // Daftar kelas tambahan dari data santri yang bukan kelas standar
+  const extraClasses = useMemo(() => {
     const setClasses = new Set<string>();
     siswaList.forEach((s) => {
-      if (s.kelas && s.kelas !== '-') setClasses.add(s.kelas);
+      if (s.kelas && s.kelas !== '-' && !ALL_KELAS_VALUES.includes(s.kelas)) {
+        setClasses.add(s.kelas);
+      }
     });
     return Array.from(setClasses).sort();
   }, [siswaList]);
@@ -389,12 +392,25 @@ export default function Home() {
                   onChange={(e) => setKelasFilter(e.target.value)}
                   className="w-full px-2.5 sm:px-3 py-2 text-xs bg-white text-slate-900 font-bold border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-2xs"
                 >
-                  <option value="">Semua Kelas</option>
-                  {uniqueClasses.map((k) => (
-                    <option key={k} value={k}>
-                      Kelas {k}
-                    </option>
+                  <option value="">Semua Kelas (7 - 12)</option>
+                  {DAFTAR_PILIHAN_KELAS.map((group) => (
+                    <optgroup key={group.label} label={group.label}>
+                      {group.options.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </optgroup>
                   ))}
+                  {extraClasses.length > 0 && (
+                    <optgroup label="Kelas Lainnya">
+                      {extraClasses.map((k) => (
+                        <option key={k} value={k}>
+                          {k}
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
                 </select>
 
                 {/* Filter Status */}

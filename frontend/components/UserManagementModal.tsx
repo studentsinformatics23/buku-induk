@@ -12,6 +12,7 @@ import {
   CreateUserData,
   UpdateUserData,
 } from '@/lib/api';
+import { DAFTAR_PILIHAN_KELAS, ALL_KELAS_VALUES } from '@/lib/kelas';
 import {
   XIcon,
   SearchIcon,
@@ -801,18 +802,27 @@ export default function UserManagementModal({
 
                 {/* Conditional fields based on role */}
                 {createData.role === 'wali_kelas' && (
-                  <div className="p-3.5 bg-emerald-50/60 rounded-xl border border-emerald-200 animate-in fade-in">
-                    <label className="block text-xs font-bold text-emerald-950 mb-1">
-                      Kelas yang Diampu (Opsional)
+                  <div className="p-3.5 bg-emerald-50/60 rounded-xl border border-emerald-200 animate-in fade-in space-y-1.5">
+                    <label className="block text-xs font-bold text-emerald-950">
+                      Pilih Kelas yang Diampu (Kelas 7 - 12)
                     </label>
-                    <input
-                      type="text"
+                    <select
                       value={createData.kelas_diampu || ''}
                       onChange={(e) => setCreateData({ ...createData, kelas_diampu: e.target.value })}
-                      placeholder="contoh: 7A, 8B, atau kosongkan untuk semua kelas"
                       className="w-full px-3.5 py-2 rounded-lg border border-emerald-300 text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white"
-                    />
-                    <p className="text-[11px] text-emerald-700 mt-1">
+                    >
+                      <option value="">-- Semua Kelas (Tidak Dibatasi) --</option>
+                      {DAFTAR_PILIHAN_KELAS.map((group) => (
+                        <optgroup key={group.label} label={group.label}>
+                          {group.options.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </optgroup>
+                      ))}
+                    </select>
+                    <p className="text-[11px] text-emerald-700">
                       Wali kelas akan otomatis diarahkan untuk menginput nilai pada kelas ini.
                     </p>
                   </div>
@@ -972,14 +982,30 @@ export default function UserManagementModal({
 
               {editFormData.role === 'wali_kelas' && (
                 <div>
-                  <label className="block text-xs font-bold text-slate-800 mb-1">Kelas yang Diampu</label>
-                  <input
-                    type="text"
+                  <label className="block text-xs font-bold text-slate-800 mb-1">
+                    Kelas yang Diampu (Kelas 7 - 12)
+                  </label>
+                  <select
                     value={editFormData.kelas_diampu || ''}
                     onChange={(e) => setEditFormData({ ...editFormData, kelas_diampu: e.target.value })}
-                    placeholder="contoh: 7A"
-                    className="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-slate-900 font-semibold text-sm focus:ring-2 focus:ring-emerald-500"
-                  />
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 text-slate-900 font-semibold text-sm focus:ring-2 focus:ring-emerald-500 bg-white"
+                  >
+                    <option value="">-- Semua Kelas (Tidak Dibatasi) --</option>
+                    {DAFTAR_PILIHAN_KELAS.map((group) => (
+                      <optgroup key={group.label} label={group.label}>
+                        {group.options.map((opt) => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </optgroup>
+                    ))}
+                    {editFormData.kelas_diampu && !ALL_KELAS_VALUES.includes(editFormData.kelas_diampu) && (
+                      <option value={editFormData.kelas_diampu}>
+                        {editFormData.kelas_diampu} (Kustom)
+                      </option>
+                    )}
+                  </select>
                 </div>
               )}
 

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Siswa, createSiswa, updateSiswa } from '../lib/api';
+import { DAFTAR_PILIHAN_KELAS, ALL_KELAS_VALUES } from '../lib/kelas';
 import { XIcon, UploadIcon, AlertCircleIcon, UserIcon } from './Icons';
 
 interface SiswaModalProps {
@@ -38,6 +39,7 @@ export default function SiswaModal({
   const [fotoFile, setFotoFile] = useState<File | null>(null);
   const [fotoPreview, setFotoPreview] = useState<string | null>(null);
 
+  const [isCustomKelas, setIsCustomKelas] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -49,7 +51,9 @@ export default function SiswaModal({
       setTempatLahir(siswaToEdit.tempat_lahir || '');
       setTanggalLahir(siswaToEdit.tanggal_lahir || '');
       setAgama(siswaToEdit.agama || 'Islam');
-      setKelas(siswaToEdit.kelas || '');
+      const k = siswaToEdit.kelas || '7A';
+      setKelas(k);
+      setIsCustomKelas(!ALL_KELAS_VALUES.includes(k) && k !== '');
       setStatusSiswa(siswaToEdit.status_siswa || 'Aktif');
       setAlamat(siswaToEdit.alamat || '');
       setNamaAyah(siswaToEdit.nama_ayah || '');
@@ -65,7 +69,8 @@ export default function SiswaModal({
       setTempatLahir('');
       setTanggalLahir('');
       setAgama('Islam');
-      setKelas('X RPL 1');
+      setKelas('7A');
+      setIsCustomKelas(false);
       setStatusSiswa('Aktif');
       setAlamat('');
       setNamaAyah('');
@@ -216,14 +221,49 @@ export default function SiswaModal({
                 <label className="block text-xs font-bold text-slate-800 mb-1.5">
                   Kelas / Rombel <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="X RPL 1"
-                  value={kelas}
-                  onChange={(e) => setKelas(e.target.value)}
-                  className="w-full px-3 py-2 text-xs sm:text-sm bg-white text-slate-900 font-medium border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent placeholder:text-slate-400 transition-all shadow-2xs"
-                />
+                <select
+                  value={isCustomKelas ? 'CUSTOM' : kelas}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === 'CUSTOM') {
+                      setIsCustomKelas(true);
+                      if (ALL_KELAS_VALUES.includes(kelas)) {
+                        setKelas('');
+                      }
+                    } else {
+                      setIsCustomKelas(false);
+                      setKelas(val);
+                    }
+                  }}
+                  className="w-full px-3 py-2 text-xs sm:text-sm bg-white text-slate-900 font-semibold border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-2xs"
+                >
+                  <option value="">-- Pilih Kelas (7 s/d 12) --</option>
+                  {DAFTAR_PILIHAN_KELAS.map((group) => (
+                    <optgroup key={group.label} label={group.label}>
+                      {group.options.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                  {/* Tampilkan opsi saat ini jika bukan kelas standar */}
+                  {!ALL_KELAS_VALUES.includes(kelas) && kelas && !isCustomKelas && (
+                    <option value={kelas}>{kelas} (Saat ini)</option>
+                  )}
+                  <option value="CUSTOM">+ Ketik Kelas Lainnya (Custom)...</option>
+                </select>
+
+                {isCustomKelas && (
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ketik nama kelas (misal: 7 Tahfidz)"
+                    value={kelas}
+                    onChange={(e) => setKelas(e.target.value)}
+                    className="mt-2 w-full px-3 py-1.5 text-xs sm:text-sm bg-white text-slate-900 font-semibold border border-blue-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-2xs animate-in fade-in"
+                  />
+                )}
               </div>
 
               <div>

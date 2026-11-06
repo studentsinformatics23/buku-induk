@@ -27,7 +27,7 @@ class Siswa(models.Model):
     tanggal_lahir = models.DateField()
     agama = models.CharField(max_length=20, choices=AGAMA_CHOICES, default='Islam')
     alamat = models.TextField()
-    kelas = models.CharField(max_length=50, default='-', help_text="Contoh: X IPA 1 / XI RPL 2")
+    kelas = models.CharField(max_length=50, default='7A', help_text="Pilihan Kelas 7 sampai dengan 12 (Contoh: 7A, 8B, 10 IPA)")
     nama_ayah = models.CharField(max_length=100, blank=True, null=True, default='')
     nama_ibu = models.CharField(max_length=100, blank=True, null=True, default='')
     pekerjaan_ortu = models.CharField(max_length=100, blank=True, null=True, default='')
