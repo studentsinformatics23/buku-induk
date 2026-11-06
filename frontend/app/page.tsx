@@ -167,7 +167,7 @@ export default function Home() {
   const handleDelete = async (siswa: Siswa) => {
     if (
       !confirm(
-        `Apakah Anda yakin ingin menghapus data siswa "${siswa.nama_lengkap}" (NISN: ${siswa.nisn})? Data nilai terkait juga akan terhapus.`
+        `Apakah Anda yakin ingin menghapus data santri "${siswa.nama_lengkap}" (NISN: ${siswa.nisn})? Data nilai terkait juga akan terhapus.`
       )
     ) {
       return;
@@ -177,7 +177,7 @@ export default function Home() {
       await deleteSiswa(siswa.id);
       loadData(search, kelasFilter, statusFilter);
     } catch (err: any) {
-      alert('Gagal menghapus siswa: ' + err.message);
+      alert('Gagal menghapus santri: ' + err.message);
     }
   };
 
@@ -230,18 +230,18 @@ export default function Home() {
       />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-1">
-        {/* Role Information Banner */}
+        {/* Role & School Information Banner */}
         <div className="mb-6 p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3.5">
             <div
-              className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+              className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
                 isAdmin ? 'bg-blue-100 text-blue-700' : 'bg-indigo-100 text-indigo-700'
               }`}
             >
-              {isAdmin ? <ShieldCheckIcon className="w-5 h-5" /> : <UserCheckIcon className="w-5 h-5" />}
+              {isAdmin ? <ShieldCheckIcon className="w-6 h-6" /> : <UserCheckIcon className="w-6 h-6" />}
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="text-sm font-bold text-slate-900">
                   Selamat Datang, {currentUser?.first_name || currentUser?.username}!
                 </span>
@@ -252,13 +252,13 @@ export default function Home() {
                       : 'bg-indigo-50 text-indigo-700 border border-indigo-200'
                   }`}
                 >
-                  {isAdmin ? 'Peran: Admin / Tata Usaha' : `Peran: Wali Kelas ${currentUser?.kelas_diampu ? `(${currentUser.kelas_diampu})` : ''}`}
+                  {isAdmin ? 'Peran: Admin / TU' : `Peran: Wali Kelas ${currentUser?.kelas_diampu ? `(${currentUser.kelas_diampu})` : ''}`}
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
                 {isAdmin
-                  ? 'Anda memiliki hak akses penuh: kelola data siswa (CRUD), impor/ekspor Excel, dan kelola data master mapel/semester.'
-                  : 'Anda dapat menginput & mengelola nilai siswa pada Buku Induk serta mencetak/mengunduh dokumen PDF resmi.'}
+                  ? 'Pondok Pesantren Miftahul Huda Al-Faqih — Akses penuh: kelola data santri (CRUD), impor/ekspor Excel, dan data master mapel/semester.'
+                  : `Pondok Pesantren Miftahul Huda Al-Faqih — Akses input nilai santri pada Buku Induk dan cetak/unduh lembar PDF resmi.`}
               </p>
             </div>
           </div>
@@ -266,7 +266,7 @@ export default function Home() {
             <button
               type="button"
               onClick={() => setKelasFilter(currentUser.kelas_diampu)}
-              className="px-3 py-1.5 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl transition-all self-start sm:self-auto cursor-pointer"
+              className="px-3.5 py-1.5 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl transition-all self-start sm:self-auto cursor-pointer"
             >
               Filter Kelas Saya ({currentUser.kelas_diampu})
             </button>
@@ -292,7 +292,7 @@ export default function Home() {
           <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Total Siswa Terdaftar
+                Total Santri Terdaftar
               </p>
               <p className="text-2xl font-extrabold text-slate-900 mt-1">
                 {siswaList.length}
@@ -340,7 +340,7 @@ export default function Home() {
               <SearchIcon className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Cari berdasarkan NISN, Nama, atau Alamat..."
+                placeholder="Cari berdasarkan NISN, Nama Santri, atau Alamat..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 text-xs sm:text-sm bg-white text-slate-900 font-semibold border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 placeholder:text-slate-400 transition-all shadow-2xs"
@@ -382,7 +382,7 @@ export default function Home() {
                 onClick={handleExportExcel}
                 disabled={exporting}
                 className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold text-slate-800 bg-white hover:bg-slate-50 border border-slate-300 rounded-xl transition-all cursor-pointer shadow-2xs disabled:opacity-50"
-                title="Unduh seluruh data siswa dalam format Excel"
+                title="Unduh data santri dalam format Excel"
               >
                 <DownloadIcon className="w-4 h-4 text-slate-600" />
                 <span>{exporting ? 'Mengunduh...' : 'Export Excel'}</span>
@@ -400,7 +400,7 @@ export default function Home() {
                 </button>
               )}
 
-              {/* Tambah Siswa Button (Hanya Admin / TU) */}
+              {/* Tambah Santri Button (Hanya Admin / TU) */}
               {isAdmin && (
                 <button
                   onClick={handleOpenAdd}
@@ -408,22 +408,22 @@ export default function Home() {
                   className="inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition-all cursor-pointer shrink-0"
                 >
                   <PlusIcon className="w-4 h-4" />
-                  <span>Tambah Siswa</span>
+                  <span>Tambah Santri</span>
                 </button>
               )}
             </div>
           </div>
         </div>
 
-        {/* Tabel Data Siswa Standar Dapodik */}
+        {/* Tabel Data Santri Pondok Pesantren */}
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs sm:text-sm">
               <thead className="bg-slate-50 text-slate-600 font-semibold uppercase text-[11px] tracking-wider border-b border-slate-200">
                 <tr>
                   <th className="px-5 py-3.5 w-14">Foto</th>
-                  <th className="px-5 py-3.5">NISN</th>
-                  <th className="px-5 py-3.5">Nama Siswa</th>
+                  <th className="px-5 py-3.5">NISN / NIS</th>
+                  <th className="px-5 py-3.5">Nama Santri</th>
                   <th className="px-4 py-3.5">Kelas</th>
                   <th className="px-4 py-3.5">L/P</th>
                   <th className="px-5 py-3.5">Tempat &amp; Tgl Lahir</th>
@@ -436,7 +436,7 @@ export default function Home() {
                   <tr>
                     <td colSpan={8} className="px-6 py-16 text-center text-slate-400">
                       <div className="inline-block w-6 h-6 border-3 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                      <p className="mt-2 text-xs font-medium">Memuat data siswa...</p>
+                      <p className="mt-2 text-xs font-medium">Memuat data santri...</p>
                     </td>
                   </tr>
                 ) : siswaList.length > 0 ? (
@@ -457,16 +457,16 @@ export default function Home() {
                         </div>
                       </td>
 
-                      {/* NISN */}
+                      {/* NISN / NIS */}
                       <td className="px-5 py-3.5 font-mono font-bold text-blue-700">
                         {siswa.nisn}
                       </td>
 
-                      {/* Nama Lengkap */}
+                      {/* Nama Lengkap Santri */}
                       <td className="px-5 py-3.5 font-semibold text-slate-900">
                         <div>{siswa.nama_lengkap}</div>
                         <div className="text-[11px] text-slate-400 font-normal">
-                          Agama: {siswa.agama || '-'}
+                          Agama: {siswa.agama || 'Islam'}
                         </div>
                       </td>
 
@@ -502,7 +502,7 @@ export default function Home() {
                         </div>
                       </td>
 
-                      {/* Status Siswa */}
+                      {/* Status Santri */}
                       <td className="px-4 py-3.5">
                         <span
                           className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${getStatusBadge(
@@ -521,7 +521,7 @@ export default function Home() {
                             onClick={() => handleOpenBukuInduk(siswa.id)}
                             type="button"
                             className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors cursor-pointer shadow-2xs"
-                            title="Buku Induk & Nilai"
+                            title="Buku Induk & Nilai Santri"
                           >
                             <FileTextIcon className="w-3.5 h-3.5" />
                             <span>Buku Induk</span>
@@ -532,7 +532,7 @@ export default function Home() {
                             onClick={() => handleOpenCetak(siswa.id)}
                             type="button"
                             className="inline-flex items-center gap-1 px-2 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer shadow-2xs"
-                            title="Cetak Lembar Buku Induk ke PDF"
+                            title="Cetak Lembar Buku Induk Santri ke PDF"
                           >
                             <PrinterIcon className="w-3.5 h-3.5 text-slate-600" />
                             <span className="hidden sm:inline">Cetak PDF</span>
@@ -544,19 +544,19 @@ export default function Home() {
                               onClick={() => handleOpenEdit(siswa)}
                               type="button"
                               className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
-                              title="Edit Biodata Siswa"
+                              title="Edit Biodata Santri"
                             >
                               <EditIcon className="w-4 h-4" />
                             </button>
                           )}
 
-                          {/* Hapus Siswa (Hanya Admin / TU) */}
+                          {/* Hapus Santri (Hanya Admin / TU) */}
                           {isAdmin && (
                             <button
                               onClick={() => handleDelete(siswa)}
                               type="button"
                               className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                              title="Hapus Siswa"
+                              title="Hapus Santri"
                             >
                               <TrashIcon className="w-4 h-4" />
                             </button>
@@ -569,7 +569,7 @@ export default function Home() {
                   <tr>
                     <td colSpan={8} className="px-6 py-16 text-center text-slate-400">
                       <p className="text-sm font-semibold text-slate-600">
-                        Tidak ada data siswa ditemukan.
+                        Tidak ada data santri ditemukan.
                       </p>
                       <p className="text-xs text-slate-400 mt-1">
                         Coba sesuaikan kata kunci pencarian atau filter kelas.

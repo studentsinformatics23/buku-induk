@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  BookOpenIcon,
   LockIcon,
   UserIcon,
   EyeIcon,
@@ -59,32 +58,39 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 flex flex-col justify-center py-10 sm:px-6 lg:px-8 px-4">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        {/* App Logo */}
-        <div className="inline-flex w-16 h-16 rounded-2xl bg-blue-600 text-white items-center justify-center shadow-lg shadow-blue-500/30 mb-4 ring-4 ring-blue-500/20">
-          <BookOpenIcon className="w-9 h-9" />
+        {/* App Logo Pesantren */}
+        <div className="inline-flex w-24 h-24 rounded-3xl bg-white p-3 items-center justify-center shadow-2xl shadow-blue-500/30 mb-3 ring-4 ring-blue-400/25">
+          <img
+            src="/logo.png"
+            alt="Logo Pondok Pesantren Miftahul Huda Al-Faqih"
+            className="w-full h-full object-contain"
+          />
         </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-          Buku Induk Siswa
+        <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight leading-snug">
+          Aplikasi Buku Induk Santri
         </h1>
-        <p className="mt-2 text-xs sm:text-sm text-slate-300">
-          Sistem Informasi &amp; Rekapitulasi Nilai Siswa Terintegrasi
+        <p className="mt-1 text-sm font-semibold text-blue-300">
+          Pondok Pesantren Miftahul Huda Al-Faqih
+        </p>
+        <p className="text-[11px] text-slate-400 mt-0.5">
+          Sistem Informasi &amp; Rekapitulasi Nilai Akademik Santri
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-6 sm:px-10 shadow-2xl rounded-3xl border border-slate-100">
-          <div className="mb-6 pb-4 border-b border-slate-100">
-            <h2 className="text-lg font-bold text-slate-900">Masuk ke Akun Anda</h2>
+      <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-7 px-6 sm:px-9 shadow-2xl rounded-3xl border border-slate-100">
+          <div className="mb-5 pb-3 border-b border-slate-100">
+            <h2 className="text-base font-bold text-slate-900">Masuk ke Sistem</h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Masukkan kredensial akun untuk mengakses sistem
+              Masukkan username dan password akun Anda
             </p>
           </div>
 
           {error && (
-            <div className="mb-5 p-3.5 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2.5 text-rose-800 text-xs sm:text-sm">
-              <AlertCircleIcon className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+            <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2.5 text-rose-800 text-xs sm:text-sm">
+              <AlertCircleIcon className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
               <div className="flex-1 font-medium">{error}</div>
             </div>
           )}
@@ -140,7 +146,7 @@ export default function LoginPage() {
             </div>
 
             {/* Submit Button */}
-            <div className="pt-2">
+            <div className="pt-1">
               <button
                 type="submit"
                 disabled={loading}
@@ -162,8 +168,8 @@ export default function LoginPage() {
           </form>
 
           {/* Quick Demo Credentials Info */}
-          <div className="mt-6 pt-5 border-t border-slate-100">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2.5 text-center">
+          <div className="mt-5 pt-4 border-t border-slate-100">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 text-center">
               Pilihan Akun Uji Coba (Klik untuk Mengisi)
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -199,7 +205,7 @@ export default function LoginPage() {
                   User: <span className="font-mono font-bold">walikelas</span>
                 </p>
                 <p className="text-[10px] text-indigo-600/80 mt-0.5">
-                  Input nilai siswa &amp; Cetak PDF
+                  Input nilai santri &amp; Cetak PDF
                 </p>
               </button>
             </div>
@@ -207,10 +213,10 @@ export default function LoginPage() {
         </div>
 
         {/* Security badge footer */}
-        <div className="mt-6 text-center">
+        <div className="mt-5 text-center">
           <div className="inline-flex items-center gap-1.5 text-[11px] text-slate-400">
             <LockIcon className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Keamanan: Password dienkripsi dengan PBKDF2-SHA256 &amp; JWT</span>
+            <span>Password dienkripsi dengan PBKDF2-SHA256 &amp; Token JWT</span>
           </div>
         </div>
       </div>

@@ -123,7 +123,7 @@ export default function SiswaModal({
       onSuccess();
       onClose();
     } catch (err: any) {
-      setErrorMessage(err.message || 'Gagal menyimpan data siswa.');
+      setErrorMessage(err.message || 'Gagal menyimpan data santri.');
     } finally {
       setSubmitting(false);
     }
@@ -136,10 +136,10 @@ export default function SiswaModal({
         <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
           <div>
             <h3 className="text-lg font-bold text-slate-900">
-              {siswaToEdit ? 'Edit Data Siswa' : 'Tambah Siswa Baru'}
+              {siswaToEdit ? 'Edit Data Santri' : 'Tambah Santri Baru'}
             </h3>
             <p className="text-xs text-slate-500 font-medium">
-              Data pokok siswa standar Buku Induk &amp; Dapodik.
+              Data pokok santri Pondok Pesantren Miftahul Huda Al-Faqih.
             </p>
           </div>
           <button

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { BookOpenIcon, RefreshCwIcon, LogOutIcon, ShieldCheckIcon, UserCheckIcon } from './Icons';
+import { RefreshCwIcon, LogOutIcon, ShieldCheckIcon, UserCheckIcon } from './Icons';
 import { User, clearAuth } from '../lib/auth';
 import { logoutApi } from '../lib/api';
 
@@ -35,17 +35,21 @@ export default function Navbar({ onRefresh, loading, onOpenMasterData, user }: N
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand / Logo */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-            <BookOpenIcon className="w-6 h-6" />
+          <div className="w-11 h-11 rounded-xl bg-white border border-slate-200 p-1 flex items-center justify-center shadow-xs shrink-0 overflow-hidden">
+            <img
+              src="/logo.png"
+              alt="Logo Pondok Pesantren Miftahul Huda Al-Faqih"
+              className="w-full h-full object-contain"
+            />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
-                Buku Induk Siswa
+                Buku Induk Santri
               </h1>
             </div>
-            <p className="text-[11px] sm:text-xs text-slate-500 font-medium hidden sm:block">
-              Sistem Informasi &amp; Rekapitulasi Nilai Siswa
+            <p className="text-[11px] sm:text-xs text-blue-700 font-semibold hidden sm:block">
+              Pondok Pesantren Miftahul Huda Al-Faqih
             </p>
           </div>
         </div>

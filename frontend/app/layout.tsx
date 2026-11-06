@@ -13,8 +13,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Buku Induk Siswa - Sistem Informasi Sekolah",
-  description: "Aplikasi Manajemen Buku Induk dan Rekapitulasi Nilai Siswa",
+  title: "Aplikasi Buku Induk Santri - Pondok Pesantren Miftahul Huda Al-Faqih",
+  description: "Aplikasi Buku Induk Santri dan Rekapitulasi Nilai Pondok Pesantren Miftahul Huda Al-Faqih",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({
@@ -24,6 +28,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+      <head>
+        <link rel="icon" href="/logo.png" />
+      </head>
       <body className="min-h-full bg-slate-50 text-slate-800 flex flex-col font-sans">
         {children}
       </body>

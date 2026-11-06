@@ -86,10 +86,10 @@ export default function ImportExcelModal({
             </div>
             <div>
               <h3 className="text-lg font-bold text-slate-900">
-                Import Data Siswa Excel
+                Import Data Santri Excel
               </h3>
               <p className="text-xs text-slate-500 font-medium">
-                Unggah banyak data siswa sekaligus dari file .xlsx
+                Unggah banyak data santri sekaligus dari file .xlsx
               </p>
             </div>
           </div>

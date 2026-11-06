@@ -11,9 +11,9 @@ class Command(BaseCommand):
         admin_user, created_admin = User.objects.get_or_create(
             username='admin',
             defaults={
-                'email': 'admin@sekolah.sch.id',
-                'first_name': 'Administrator',
-                'last_name': 'TU',
+                'email': 'admin@al-faqih.ponpes.id',
+                'first_name': 'Administrator TU',
+                'last_name': 'Ponpes Al-Faqih',
                 'is_staff': True,
                 'is_superuser': True,
             }
@@ -35,9 +35,9 @@ class Command(BaseCommand):
         wali_user, created_wali = User.objects.get_or_create(
             username='walikelas',
             defaults={
-                'email': 'walikelas@sekolah.sch.id',
-                'first_name': 'Wali Kelas',
-                'last_name': 'X RPL 1',
+                'email': 'walikelas@al-faqih.ponpes.id',
+                'first_name': 'Ustadz Pengampu',
+                'last_name': 'Wali Kelas',
                 'is_staff': False,
                 'is_superuser': False,
             }
@@ -56,3 +56,4 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING('Akun Wali Kelas sudah ada, password direset ke "wali123"'))
 
         self.stdout.write(self.style.SUCCESS('\nInisialisasi akun selesai! Password telah dienkripsi menggunakan PBKDF2-SHA256 bawaan Django.'))
+

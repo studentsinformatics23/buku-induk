@@ -152,10 +152,10 @@ export default function BukuIndukModal({
               </div>
               <div>
                 <h3 className="text-lg font-bold text-slate-900">
-                  Buku Induk Siswa
+                  Buku Induk Santri
                 </h3>
                 <p className="text-xs text-slate-500 font-medium">
-                  Profil lengkap &amp; transkrip nilai akademik standar Dapodik / Kemdikbud.
+                  Profil lengkap &amp; evaluasi hasil belajar santri Pondok Pesantren Miftahul Huda Al-Faqih.
                 </p>
               </div>
             </div>
@@ -183,7 +183,7 @@ export default function BukuIndukModal({
             {loading ? (
               <div className="py-20 text-center">
                 <div className="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-xs text-slate-500 mt-2 font-medium">Memuat data buku induk...</p>
+                <p className="text-xs text-slate-500 mt-2 font-medium">Memuat data buku induk santri...</p>
               </div>
             ) : siswa ? (
               <>
@@ -462,7 +462,7 @@ export default function BukuIndukModal({
               </>
             ) : (
               <div className="py-12 text-center text-slate-500">
-                Siswa tidak ditemukan.
+                Data santri tidak ditemukan.
               </div>
             )}
           </div>

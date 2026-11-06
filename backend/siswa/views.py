@@ -102,7 +102,7 @@ class SiswaViewSet(viewsets.ModelViewSet):
         """Menghasilkan file template Excel (.xlsx) untuk import data siswa sesuai standar."""
         wb = openpyxl.Workbook()
         ws = wb.active
-        ws.title = "Data Siswa"
+        ws.title = "Data Santri"
 
         headers = [
             "NISN",
@@ -174,7 +174,7 @@ class SiswaViewSet(viewsets.ModelViewSet):
         response = HttpResponse(
             content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-        response['Content-Disposition'] = 'attachment; filename="template_import_siswa.xlsx"'
+        response['Content-Disposition'] = 'attachment; filename="template_import_santri.xlsx"'
         wb.save(response)
         return response
 
@@ -185,7 +185,7 @@ class SiswaViewSet(viewsets.ModelViewSet):
 
         wb = openpyxl.Workbook()
         ws = wb.active
-        ws.title = "Rekap Siswa"
+        ws.title = "Rekap Santri Al-Faqih"
 
         headers = [
             "No",
@@ -261,7 +261,7 @@ class SiswaViewSet(viewsets.ModelViewSet):
         response = HttpResponse(
             content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-        response['Content-Disposition'] = f'attachment; filename="rekap_buku_induk_siswa_{timestamp}.xlsx"'
+        response['Content-Disposition'] = f'attachment; filename="rekap_buku_induk_santri_miftahul_huda_al_faqih_{timestamp}.xlsx"'
         wb.save(response)
         return response
 
@@ -426,7 +426,7 @@ class SiswaViewSet(viewsets.ModelViewSet):
 
         return Response({
             "status": "success" if total_processed > 0 else "error",
-            "message": f"Import selesai: {created_count} siswa baru ditambahkan, {updated_count} siswa diperbarui.",
+            "message": f"Import selesai: {created_count} santri baru ditambahkan, {updated_count} santri diperbarui.",
             "created_count": created_count,
             "updated_count": updated_count,
             "total_processed": total_processed,

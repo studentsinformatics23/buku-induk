@@ -275,12 +275,12 @@ export async function downloadExportExcel(filters?: {
   const url = getExportExcelUrl(filters);
   const now = new Date();
   const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
-  await downloadWithAuth(url, `rekap_buku_induk_siswa_${dateStr}.xlsx`);
+  await downloadWithAuth(url, `rekap_buku_induk_santri_al_faqih_${dateStr}.xlsx`);
 }
 
 export async function downloadTemplateExcel(): Promise<void> {
   const url = getTemplateExcelUrl();
-  await downloadWithAuth(url, 'template_import_siswa.xlsx');
+  await downloadWithAuth(url, 'template_import_santri.xlsx');
 }
 
 export async function importSiswaExcel(file: File): Promise<ImportResult> {
