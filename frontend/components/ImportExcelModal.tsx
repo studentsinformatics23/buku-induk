@@ -140,29 +140,45 @@ export default function ImportExcelModal({
 
           {/* Result Card */}
           {result && (
-            <div className="p-3.5 sm:p-4 bg-emerald-50 border border-emerald-200 rounded-xl space-y-3">
-              <div className="flex items-center gap-2 text-emerald-900 font-bold text-xs sm:text-sm">
-                <CheckIcon className="w-5 h-5 text-emerald-600 shrink-0" />
+            <div
+              className={`p-3.5 sm:p-4 rounded-xl space-y-3 ${
+                result.status === 'error' || (result.created_count === 0 && result.updated_count === 0)
+                  ? 'bg-rose-50 border border-rose-200'
+                  : 'bg-emerald-50 border border-emerald-200'
+              }`}
+            >
+              <div
+                className={`flex items-center gap-2 font-bold text-xs sm:text-sm ${
+                  result.status === 'error' || (result.created_count === 0 && result.updated_count === 0)
+                    ? 'text-rose-900'
+                    : 'text-emerald-900'
+                }`}
+              >
+                {result.status === 'error' || (result.created_count === 0 && result.updated_count === 0) ? (
+                  <AlertCircleIcon className="w-5 h-5 text-rose-600 shrink-0" />
+                ) : (
+                  <CheckIcon className="w-5 h-5 text-emerald-600 shrink-0" />
+                )}
                 <span>{result.message}</span>
               </div>
 
               <div className="grid grid-cols-2 gap-2 text-center text-xs">
-                <div className="bg-white p-2 rounded-lg border border-emerald-100">
+                <div className="bg-white p-2 rounded-lg border border-slate-200">
                   <span className="text-slate-500 block text-[10px] uppercase font-semibold">Santri Baru</span>
                   <span className="text-base font-extrabold text-emerald-700">{result.created_count}</span>
                 </div>
-                <div className="bg-white p-2 rounded-lg border border-emerald-100">
+                <div className="bg-white p-2 rounded-lg border border-slate-200">
                   <span className="text-slate-500 block text-[10px] uppercase font-semibold">Diperbarui</span>
                   <span className="text-base font-extrabold text-blue-700">{result.updated_count}</span>
                 </div>
               </div>
 
               {result.errors && result.errors.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-emerald-200/60">
-                  <p className="text-xs font-bold text-amber-800 mb-1">
+                <div className="mt-3 pt-3 border-t border-slate-200/80">
+                  <p className="text-xs font-bold text-rose-800 mb-1">
                     Catatan ({result.errors.length} baris dilewati):
                   </p>
-                  <ul className="text-[11px] text-amber-900 space-y-1 list-disc list-inside max-h-32 overflow-y-auto">
+                  <ul className="text-[11px] text-rose-900 space-y-1 list-disc list-inside max-h-36 overflow-y-auto">
                     {result.errors.map((err, idx) => (
                       <li key={idx}>{err}</li>
                     ))}

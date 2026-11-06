@@ -479,3 +479,4 @@ export default function PortalSiswaView({ user, onOpenCetak }: PortalSiswaViewPr
     </div>
   );
 }
+

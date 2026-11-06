@@ -326,18 +326,24 @@ class SiswaViewSet(viewsets.ModelViewSet):
             return default_idx
 
         nisn_idx = find_col(['nisn'], 0)
-        nama_idx = find_col(['nama lengkap', 'nama'], 1)
-        jk_idx = find_col(['kelamin', 'gender', 'jk'], 2)
-        tempat_idx = find_col(['tempat lahir', 'tempat'], 3)
-        tgl_idx = find_col(['tanggal', 'tgl', 'lahir'], 4)
+        nama_idx = find_col(['nama lengkap', 'nama santri', 'nama siswa', 'nama_lengkap', 'nama'], 1)
+        jk_idx = find_col(['jenis kelamin', 'kelamin', 'gender', 'l/p', 'jk'], 2)
+        tempat_idx = find_col(['tempat lahir', 'tempat_lahir', 'tempat'], 3)
+        # PENTING: Jangan gunakan keyword 'lahir' saja agar tidak mencocokkan 'tempat lahir' (kolom 3)
+        tgl_idx = find_col(['tanggal lahir', 'tanggal_lahir', 'tgl lahir', 'tgl_lahir', 'tanggal', 'tgl'], 4)
         agama_idx = find_col(['agama'], 5)
         kelas_idx = find_col(['kelas', 'rombel'], 6)
-        alamat_idx = find_col(['alamat'], 7)
-        ayah_idx = find_col(['ayah'], 8)
-        ibu_idx = find_col(['ibu'], 9)
-        pekerjaan_idx = find_col(['pekerjaan'], 10)
-        hp_idx = find_col(['hp', 'telepon', 'telp', 'wa'], 11)
-        status_idx = find_col(['status'], 12)
+        alamat_idx = find_col(['alamat', 'domisili'], 7)
+        ayah_idx = find_col(['nama ayah', 'ayah', 'bapak'], 8)
+        ibu_idx = find_col(['nama ibu', 'ibu'], 9)
+        pekerjaan_idx = find_col(['pekerjaan ortu', 'pekerjaan_ortu', 'pekerjaan'], 10)
+        hp_idx = find_col(['no hp', 'no telp', 'no. hp', 'no_hp', 'telepon', 'telp', 'hp', 'wa'], 11)
+        status_idx = find_col(['status siswa', 'status_siswa', 'status'], 12)
+
+        # Safeguard: pastikan tempat_idx dan tgl_idx tidak menunjuk ke kolom yang sama
+        if tempat_idx == tgl_idx:
+            tempat_idx = 3
+            tgl_idx = 4
 
         created_count = 0
         updated_count = 0
@@ -400,13 +406,32 @@ class SiswaViewSet(viewsets.ModelViewSet):
                 parsed_date = raw_tgl.strftime('%Y-%m-%d')
             elif raw_tgl:
                 date_str = str(raw_tgl).strip()
-                for fmt in ('%Y-%m-%d', '%d-%m-%Y', '%d/%m/%Y', '%Y/%m/%d'):
+                # Cek jika diawali format YYYY-MM-DD (misal: '2008-04-12 00:00:00')
+                if len(date_str) >= 10 and date_str[4] == '-' and date_str[7] == '-':
                     try:
-                        dt = datetime.strptime(date_str, fmt)
+                        dt = datetime.strptime(date_str[:10], '%Y-%m-%d')
                         parsed_date = dt.strftime('%Y-%m-%d')
-                        break
                     except ValueError:
                         pass
+
+                if not parsed_date:
+                    for fmt in (
+                        '%Y-%m-%d',
+                        '%d-%m-%Y',
+                        '%d/%m/%Y',
+                        '%Y/%m/%d',
+                        '%d.%m.%Y',
+                        '%Y.%m.%d',
+                        '%d %B %Y',
+                        '%d %b %Y',
+                    ):
+                        try:
+                            dt = datetime.strptime(date_str, fmt)
+                            parsed_date = dt.strftime('%Y-%m-%d')
+                            break
+                        except ValueError:
+                            pass
+
                 if not parsed_date:
                     errors.append(
                         f"Baris {row_num} (NISN: {nisn}): Format tanggal lahir '{raw_tgl}' tidak valid. Gunakan format YYYY-MM-DD."
@@ -443,12 +468,16 @@ class SiswaViewSet(viewsets.ModelViewSet):
 
         return Response({
             "status": "success" if total_processed > 0 else "error",
-            "message": f"Import selesai: {created_count} santri baru ditambahkan, {updated_count} santri diperbarui.",
+            "message": (
+                f"Import selesai: {created_count} santri baru ditambahkan, {updated_count} santri diperbarui."
+                if total_processed > 0
+                else "Tidak ada santri yang berhasil diimpor. Silakan periksa catatan kesalahan di bawah."
+            ),
             "created_count": created_count,
             "updated_count": updated_count,
             "total_processed": total_processed,
             "errors": errors,
-        }, status=status.HTTP_200_OK if total_processed > 0 or not errors else status.HTTP_400_BAD_REQUEST)
+        }, status=status.HTTP_200_OK)
 
 
 class TahunSemesterViewSet(viewsets.ModelViewSet):

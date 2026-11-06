@@ -97,7 +97,11 @@ async function apiFetch<T>(endpoint: string, options?: RequestInit, retry = true
         let err = 'Terjadi kesalahan pada server';
         try {
           const json = await retryResponse.json();
-          err = json.detail || json.error || JSON.stringify(json);
+          if (json.message && Array.isArray(json.errors) && json.errors.length > 0) {
+            err = `${json.message}: ${json.errors.join('; ')}`;
+          } else {
+            err = json.detail || json.error || json.message || JSON.stringify(json);
+          }
         } catch {
           err = await retryResponse.text();
         }
@@ -126,7 +130,11 @@ async function apiFetch<T>(endpoint: string, options?: RequestInit, retry = true
     let errorDetail = 'Terjadi kesalahan pada server';
     try {
       const errorJson = await response.json();
-      errorDetail = errorJson.detail || errorJson.error || JSON.stringify(errorJson);
+      if (errorJson.message && Array.isArray(errorJson.errors) && errorJson.errors.length > 0) {
+        errorDetail = `${errorJson.message}: ${errorJson.errors.join('; ')}`;
+      } else {
+        errorDetail = errorJson.detail || errorJson.error || errorJson.message || JSON.stringify(errorJson);
+      }
     } catch {
       errorDetail = await response.text();
     }
