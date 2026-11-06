@@ -8,6 +8,7 @@ import {
   ShieldCheckIcon,
   UserCheckIcon,
   GraduationCapIcon,
+  UsersIcon,
 } from './Icons';
 import { User, clearAuth } from '../lib/auth';
 import { logoutApi } from '../lib/api';
@@ -16,10 +17,17 @@ interface NavbarProps {
   onRefresh: () => void;
   loading: boolean;
   onOpenMasterData: () => void;
+  onOpenUserManagement?: () => void;
   user: User | null;
 }
 
-export default function Navbar({ onRefresh, loading, onOpenMasterData, user }: NavbarProps) {
+export default function Navbar({
+  onRefresh,
+  loading,
+  onOpenMasterData,
+  onOpenUserManagement,
+  user,
+}: NavbarProps) {
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
 
@@ -39,6 +47,8 @@ export default function Navbar({ onRefresh, loading, onOpenMasterData, user }: N
   };
 
   const isAdmin = user?.role === 'admin';
+  const isWali = user?.role === 'wali_kelas';
+  const isSiswa = user?.role === 'siswa';
 
   return (
     <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs">
@@ -69,30 +79,62 @@ export default function Navbar({ onRefresh, loading, onOpenMasterData, user }: N
             <div className="flex items-center gap-1.5 sm:gap-2 pl-1.5 pr-2 sm:pr-3 py-1 bg-slate-50 border border-slate-200 rounded-xl">
               <div
                 className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${
-                  isAdmin ? 'bg-blue-600 text-white' : 'bg-indigo-600 text-white'
+                  isAdmin
+                    ? 'bg-blue-600 text-white'
+                    : isWali
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-sky-600 text-white'
                 }`}
-                title={`${user.username} (${isAdmin ? 'Admin / TU' : 'Wali Kelas'})`}
+                title={`${user.username} (${
+                  isAdmin ? 'Admin / TU' : isWali ? 'Wali Kelas' : 'Santri / Siswa'
+                })`}
               >
-                {isAdmin ? <ShieldCheckIcon className="w-4 h-4" /> : <UserCheckIcon className="w-4 h-4" />}
+                {isAdmin ? (
+                  <ShieldCheckIcon className="w-4 h-4" />
+                ) : isWali ? (
+                  <UserCheckIcon className="w-4 h-4" />
+                ) : (
+                  <GraduationCapIcon className="w-4 h-4" />
+                )}
               </div>
               <div className="text-left hidden lg:block">
-                <div className="text-xs font-bold text-slate-900 leading-none truncate max-w-[120px]">
-                  {user.first_name || user.username}
+                <div className="text-xs font-bold text-slate-900 leading-none truncate max-w-[130px]">
+                  {isSiswa ? (user.siswa_nama || user.username) : (user.first_name || user.username)}
                 </div>
                 <div className="text-[10px] text-slate-500 font-medium mt-0.5 flex items-center gap-1">
                   <span
                     className={`inline-block px-1.5 py-0.2 rounded font-semibold text-[9px] ${
-                      isAdmin ? 'bg-blue-100 text-blue-800' : 'bg-indigo-100 text-indigo-800'
+                      isAdmin
+                        ? 'bg-blue-100 text-blue-800'
+                        : isWali
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : 'bg-sky-100 text-sky-800'
                     }`}
                   >
-                    {isAdmin ? 'Admin / TU' : 'Wali Kelas'}
+                    {isAdmin ? 'Admin / TU' : isWali ? 'Wali Kelas' : 'Santri'}
                   </span>
-                  {user.kelas_diampu && (
-                    <span className="text-slate-400 font-normal">({user.kelas_diampu})</span>
+                  {isWali && user.kelas_diampu && (
+                    <span className="text-slate-500 font-medium">({user.kelas_diampu})</span>
+                  )}
+                  {isSiswa && user.siswa_kelas && (
+                    <span className="text-slate-500 font-medium">({user.siswa_kelas})</span>
                   )}
                 </div>
               </div>
             </div>
+          )}
+
+          {/* Kelola User button (Hanya untuk Admin / TU) */}
+          {isAdmin && onOpenUserManagement && (
+            <button
+              onClick={onOpenUserManagement}
+              type="button"
+              className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 hover:text-emerald-700 bg-slate-100 hover:bg-slate-200/80 rounded-xl transition-colors cursor-pointer"
+              title="Kelola Akun Wali Kelas & Pengguna"
+            >
+              <UsersIcon className="w-3.5 h-3.5 text-slate-600" />
+              <span className="hidden sm:inline">Kelola User</span>
+            </button>
           )}
 
           {/* Data Master button (Hanya untuk Admin / TU) */}
@@ -108,13 +150,13 @@ export default function Navbar({ onRefresh, loading, onOpenMasterData, user }: N
             </button>
           )}
 
-          {/* Refresh button */}
+          {/* Refresh button (Hanya untuk bukan siswa atau sesuai kebutuhan) */}
           <button
             onClick={onRefresh}
             disabled={loading}
             type="button"
             className="inline-flex items-center justify-center gap-1.5 p-2 sm:px-3 sm:py-1.5 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:border-slate-300 rounded-xl transition-all cursor-pointer disabled:opacity-50"
-            title="Muat Ulang Data Santri"
+            title="Muat Ulang Data"
           >
             <RefreshCwIcon className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-blue-600' : ''}`} />
             <span className="hidden sm:inline">Refresh</span>

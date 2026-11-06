@@ -8,6 +8,8 @@ import BukuIndukModal from '../components/BukuIndukModal';
 import MasterDataModal from '../components/MasterDataModal';
 import ImportExcelModal from '../components/ImportExcelModal';
 import CetakBukuIndukModal from '../components/CetakBukuIndukModal';
+import UserManagementModal from '../components/UserManagementModal';
+import PortalSiswaView from '../components/PortalSiswaView';
 import {
   Siswa,
   getSiswaList,
@@ -36,6 +38,7 @@ import {
   PrinterIcon,
   ShieldCheckIcon,
   UserCheckIcon,
+  UsersIcon,
 } from '../components/Icons';
 
 export default function Home() {
@@ -64,6 +67,7 @@ export default function Home() {
 
   const [isMasterDataOpen, setIsMasterDataOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isUserManagementOpen, setIsUserManagementOpen] = useState(false);
 
   const [isCetakModalOpen, setIsCetakModalOpen] = useState(false);
   const [selectedSiswaIdForCetak, setSelectedSiswaIdForCetak] = useState<number | null>(null);
@@ -220,6 +224,33 @@ export default function Home() {
     );
   }
 
+  // Khusus Akun Santri / Siswa: Tampilkan Portal Rapor & Hasil Nilai Santri Mandiri
+  if (currentUser?.role === 'siswa') {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+        <Navbar
+          loading={loading}
+          user={currentUser}
+          onRefresh={() => loadData()}
+          onOpenMasterData={() => {}}
+        />
+
+        <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 w-full flex-1">
+          <PortalSiswaView
+            user={currentUser}
+            onOpenCetak={(siswaId) => handleOpenCetak(siswaId)}
+          />
+        </main>
+
+        <CetakBukuIndukModal
+          isOpen={isCetakModalOpen}
+          onClose={() => setIsCetakModalOpen(false)}
+          siswaId={selectedSiswaIdForCetak}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
       <Navbar
@@ -227,6 +258,7 @@ export default function Home() {
         user={currentUser}
         onRefresh={() => loadData(search, kelasFilter, statusFilter)}
         onOpenMasterData={() => setIsMasterDataOpen(true)}
+        onOpenUserManagement={() => setIsUserManagementOpen(true)}
       />
 
       <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 w-full flex-1">
@@ -392,6 +424,19 @@ export default function Home() {
                   <DownloadIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 shrink-0" />
                   <span className="truncate">{exporting ? 'Mengunduh...' : 'Export Excel'}</span>
                 </button>
+
+                {/* Kelola User Button (Hanya Admin / TU) */}
+                {isAdmin && (
+                  <button
+                    onClick={() => setIsUserManagementOpen(true)}
+                    type="button"
+                    className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-2 text-xs font-bold text-indigo-900 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl transition-all cursor-pointer shadow-2xs"
+                    title="Kelola Akun Wali Kelas & Pengguna"
+                  >
+                    <UsersIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-700 shrink-0" />
+                    <span className="truncate">Kelola User</span>
+                  </button>
+                )}
 
                 {/* Import Excel Button (Hanya Admin / TU) */}
                 {isAdmin && (
@@ -759,6 +804,12 @@ export default function Home() {
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
         onSuccess={() => loadData(search, kelasFilter, statusFilter)}
+      />
+
+      <UserManagementModal
+        isOpen={isUserManagementOpen}
+        onClose={() => setIsUserManagementOpen(false)}
+        currentUserId={currentUser?.id}
       />
     </div>
   );

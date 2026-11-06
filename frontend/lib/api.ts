@@ -361,3 +361,58 @@ export async function deleteNilai(id: number): Promise<void> {
     method: 'DELETE',
   });
 }
+
+// ================= User Management API (Admin only) =================
+export interface CreateUserData {
+  username: string;
+  password: string;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  role: 'admin' | 'wali_kelas' | 'siswa';
+  kelas_diampu?: string;
+  siswa_id?: number | null;
+}
+
+export interface UpdateUserData {
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  role?: 'admin' | 'wali_kelas' | 'siswa';
+  kelas_diampu?: string;
+  siswa_id?: number | null;
+  password?: string;
+  is_active?: boolean;
+}
+
+export async function getUserList(filters?: { role?: string; search?: string }): Promise<User[]> {
+  const params = new URLSearchParams();
+  if (filters?.role) params.append('role', filters.role);
+  if (filters?.search) params.append('search', filters.search);
+  const query = params.toString() ? `?${params.toString()}` : '';
+  const data = await apiFetch<any>(`/auth/users/${query}`);
+  return Array.isArray(data) ? data : (data.results || []);
+}
+
+export async function createUser(data: CreateUserData): Promise<User> {
+  return apiFetch<User>('/auth/users/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateUser(id: number, data: UpdateUserData): Promise<User> {
+  return apiFetch<User>(`/auth/users/${id}/`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteUser(id: number): Promise<{ detail: string }> {
+  return apiFetch<{ detail: string }>(`/auth/users/${id}/`, {
+    method: 'DELETE',
+  });
+}
+

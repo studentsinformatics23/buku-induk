@@ -1,10 +1,11 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from accounts.models import UserProfile
+from siswa.models import Siswa
 
 
 class Command(BaseCommand):
-    help = 'Inisialisasi akun default (Admin dan Wali Kelas) dengan password terenkripsi'
+    help = 'Inisialisasi akun default (Admin, Wali Kelas, dan Siswa) dengan password terenkripsi'
 
     def handle(self, *args, **options):
         # 1. Buat / update akun Admin / TU
@@ -55,5 +56,33 @@ class Command(BaseCommand):
         else:
             self.stdout.write(self.style.WARNING('Akun Wali Kelas sudah ada, password direset ke "wali123"'))
 
-        self.stdout.write(self.style.SUCCESS('\nInisialisasi akun selesai! Password telah dienkripsi menggunakan PBKDF2-SHA256 bawaan Django.'))
+        # 3. Buat / update akun Siswa / Santri
+        # Cari santri pertama jika ada untuk ditautkan
+        first_siswa = Siswa.objects.first()
 
+        siswa_user, created_siswa = User.objects.get_or_create(
+            username='siswa',
+            defaults={
+                'email': 'santri@al-faqih.ponpes.id',
+                'first_name': first_siswa.nama_lengkap if first_siswa else 'Santri Pelajar',
+                'last_name': '(Siswa)',
+                'is_staff': False,
+                'is_superuser': False,
+            }
+        )
+        siswa_user.set_password('siswa123')
+        siswa_user.save()
+
+        profile_siswa, _ = UserProfile.objects.get_or_create(user=siswa_user)
+        profile_siswa.role = 'siswa'
+        profile_siswa.kelas_diampu = ''
+        if first_siswa:
+            profile_siswa.siswa = first_siswa
+        profile_siswa.save()
+
+        if created_siswa:
+            self.stdout.write(self.style.SUCCESS('Akun Siswa/Santri berhasil dibuat: username "siswa", password "siswa123"'))
+        else:
+            self.stdout.write(self.style.WARNING('Akun Siswa/Santri sudah ada, password direset ke "siswa123"'))
+
+        self.stdout.write(self.style.SUCCESS('\nInisialisasi akun selesai! Password telah dienkripsi menggunakan PBKDF2-SHA256 bawaan Django.'))

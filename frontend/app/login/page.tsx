@@ -10,6 +10,7 @@ import {
   ShieldCheckIcon,
   AlertCircleIcon,
   UserCheckIcon,
+  GraduationCapIcon,
 } from '../../components/Icons';
 import { loginApi } from '../../lib/api';
 import { setAuth, isAuthenticated } from '../../lib/auth';
@@ -172,12 +173,12 @@ export default function LoginPage() {
             <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 text-center">
               Pilihan Akun Uji Coba (Klik untuk Mengisi)
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               {/* Card Admin */}
               <button
                 type="button"
                 onClick={() => handleQuickFill('admin', 'admin123')}
-                className="p-2.5 text-left bg-blue-50/70 hover:bg-blue-100/70 border border-blue-200/80 rounded-xl transition-all cursor-pointer group"
+                className="p-2 text-left bg-blue-50/70 hover:bg-blue-100/70 border border-blue-200/80 rounded-xl transition-all cursor-pointer group"
               >
                 <div className="flex items-center gap-1.5 font-bold text-blue-900 text-xs">
                   <ShieldCheckIcon className="w-3.5 h-3.5 text-blue-700" />
@@ -187,7 +188,7 @@ export default function LoginPage() {
                   User: <span className="font-mono font-bold">admin</span>
                 </p>
                 <p className="text-[10px] text-blue-600/80 mt-0.5">
-                  Akses penuh CRUD, Import/Export
+                  Akses penuh &amp; kelola user
                 </p>
               </button>
 
@@ -195,7 +196,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => handleQuickFill('walikelas', 'wali123')}
-                className="p-2.5 text-left bg-indigo-50/70 hover:bg-indigo-100/70 border border-indigo-200/80 rounded-xl transition-all cursor-pointer group"
+                className="p-2 text-left bg-indigo-50/70 hover:bg-indigo-100/70 border border-indigo-200/80 rounded-xl transition-all cursor-pointer group"
               >
                 <div className="flex items-center gap-1.5 font-bold text-indigo-900 text-xs">
                   <UserCheckIcon className="w-3.5 h-3.5 text-indigo-700" />
@@ -205,7 +206,25 @@ export default function LoginPage() {
                   User: <span className="font-mono font-bold">walikelas</span>
                 </p>
                 <p className="text-[10px] text-indigo-600/80 mt-0.5">
-                  Input nilai santri &amp; Cetak PDF
+                  Input nilai santri &amp; PDF
+                </p>
+              </button>
+
+              {/* Card Siswa / Santri */}
+              <button
+                type="button"
+                onClick={() => handleQuickFill('siswa', 'siswa123')}
+                className="p-2 text-left bg-sky-50/70 hover:bg-sky-100/70 border border-sky-200/80 rounded-xl transition-all cursor-pointer group"
+              >
+                <div className="flex items-center gap-1.5 font-bold text-sky-900 text-xs">
+                  <GraduationCapIcon className="w-3.5 h-3.5 text-sky-700" />
+                  <span>Santri / Siswa</span>
+                </div>
+                <p className="text-[11px] text-sky-700 mt-1">
+                  User: <span className="font-mono font-bold">siswa</span>
+                </p>
+                <p className="text-[10px] text-sky-600/80 mt-0.5">
+                  Lihat hasil nilai &amp; rapor
                 </p>
               </button>
             </div>

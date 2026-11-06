@@ -62,6 +62,15 @@ class SiswaViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
+        role = get_user_role(self.request)
+
+        # Jika role adalah siswa, batasi hanya melihat datanya sendiri
+        if role == 'siswa':
+            siswa_id = getattr(self.request.user.profile, 'siswa_id', None)
+            if siswa_id:
+                return queryset.filter(id=siswa_id)
+            return queryset.none()
+
         kelas = self.request.query_params.get('kelas')
         status_siswa = self.request.query_params.get('status_siswa')
 
@@ -93,6 +102,11 @@ class SiswaViewSet(viewsets.ModelViewSet):
     def nilai(self, request, pk=None):
         """Mendapatkan seluruh daftar nilai untuk satu siswa tertentu."""
         siswa = self.get_object()
+        role = get_user_role(request)
+        if role == 'siswa':
+            my_siswa_id = getattr(request.user.profile, 'siswa_id', None)
+            if not my_siswa_id or my_siswa_id != siswa.id:
+                raise PermissionDenied("Anda hanya diizinkan melihat nilai Anda sendiri.")
         nilai = siswa.nilai_list.select_related('tahun_semester', 'mata_pelajaran').all()
         serializer = NilaiSiswaSerializer(nilai, many=True)
         return Response(serializer.data)
@@ -181,6 +195,9 @@ class SiswaViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='export-excel')
     def export_excel(self, request):
         """Mengekspor data siswa terfilter ke berkas Excel (.xlsx) dengan format rapi."""
+        role = get_user_role(request)
+        if role == 'siswa':
+            raise PermissionDenied("Siswa tidak memiliki izin mengekspor rekapitulasi santri.")
         queryset = self.filter_queryset(self.get_queryset())
 
         wb = openpyxl.Workbook()
@@ -489,6 +506,7 @@ class NilaiSiswaViewSet(viewsets.ModelViewSet):
     API endpoint untuk Nilai Siswa (CRUD).
     - Admin / TU: akses penuh
     - Wali Kelas: dapat input dan hapus nilai siswa di kelasnya
+    - Siswa: hanya dapat melihat nilainya sendiri (read-only)
     Mendukung filter query parameter:
     - ?siswa=<id>
     - ?tahun_semester=<id>
@@ -503,6 +521,15 @@ class NilaiSiswaViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
+        role = get_user_role(self.request)
+
+        # Jika role adalah siswa, otomatis kunci hanya pada nilai miliknya sendiri
+        if role == 'siswa':
+            my_siswa_id = getattr(self.request.user.profile, 'siswa_id', None)
+            if my_siswa_id:
+                return queryset.filter(siswa_id=my_siswa_id)
+            return queryset.none()
+
         siswa_id = self.request.query_params.get('siswa')
         tahun_semester_id = self.request.query_params.get('tahun_semester')
         mata_pelajaran_id = self.request.query_params.get('mata_pelajaran')
@@ -515,3 +542,21 @@ class NilaiSiswaViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(mata_pelajaran_id=mata_pelajaran_id)
 
         return queryset
+
+    def create(self, request, *args, **kwargs):
+        role = get_user_role(request)
+        if role == 'siswa':
+            raise PermissionDenied("Siswa tidak memiliki izin menambah nilai.")
+        return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        role = get_user_role(request)
+        if role == 'siswa':
+            raise PermissionDenied("Siswa tidak memiliki izin mengubah nilai.")
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        role = get_user_role(request)
+        if role == 'siswa':
+            raise PermissionDenied("Siswa tidak memiliki izin menghapus nilai.")
+        return super().destroy(request, *args, **kwargs)

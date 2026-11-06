@@ -1,9 +1,13 @@
 // Authentication helper & client storage for JWT tokens
-export type UserRole = 'admin' | 'wali_kelas';
+export type UserRole = 'admin' | 'wali_kelas' | 'siswa';
 
 export interface UserProfile {
   role: UserRole;
   kelas_diampu: string;
+  siswa?: number | null;
+  siswa_nama?: string;
+  siswa_nisn?: string;
+  siswa_kelas?: string;
 }
 
 export interface User {
@@ -14,6 +18,12 @@ export interface User {
   last_name: string;
   role: UserRole;
   kelas_diampu: string;
+  siswa_id?: number | null;
+  siswa_nama?: string;
+  siswa_nisn?: string;
+  siswa_kelas?: string;
+  is_active?: boolean;
+  date_joined?: string;
   profile?: UserProfile;
 }
 
@@ -57,7 +67,6 @@ export function setAuth(tokens: AuthTokens, user: User): void {
   localStorage.setItem(ACCESS_TOKEN_KEY, tokens.access);
   localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refresh);
   localStorage.setItem(USER_KEY, JSON.stringify(user));
-  // Set simple cookie for middleware or external checks if needed
   document.cookie = `buku_induk_logged_in=true; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
   window.dispatchEvent(new Event('auth-change'));
 }
@@ -83,6 +92,11 @@ export function isAdmin(): boolean {
 export function isWaliKelas(): boolean {
   const user = getCurrentUser();
   return user?.role === 'wali_kelas';
+}
+
+export function isSiswa(): boolean {
+  const user = getCurrentUser();
+  return user?.role === 'siswa';
 }
 
 /**
@@ -124,4 +138,3 @@ export async function refreshAccessToken(): Promise<string | null> {
   }
   return null;
 }
-
