@@ -211,9 +211,9 @@ export default function Home() {
 
   if (!authChecked) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
         <div className="text-center">
-          <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <div className="w-9 h-9 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
           <p className="mt-3 text-xs font-semibold text-slate-500">Memeriksa autentikasi...</p>
         </div>
       </div>
@@ -221,7 +221,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
       <Navbar
         loading={loading}
         user={currentUser}
@@ -229,36 +229,36 @@ export default function Home() {
         onOpenMasterData={() => setIsMasterDataOpen(true)}
       />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-1">
-        {/* Role & School Information Banner */}
-        <div className="mb-6 p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-3.5">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 w-full flex-1">
+        {/* Role & School Information Banner (Adaptive Mobile & Desktop) */}
+        <div className="mb-4 sm:mb-6 p-3.5 sm:p-4 bg-white rounded-2xl border border-slate-200/90 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-start sm:items-center gap-3">
             <div
-              className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
+              className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0 ${
                 isAdmin ? 'bg-blue-100 text-blue-700' : 'bg-indigo-100 text-indigo-700'
               }`}
             >
-              {isAdmin ? <ShieldCheckIcon className="w-6 h-6" /> : <UserCheckIcon className="w-6 h-6" />}
+              {isAdmin ? <ShieldCheckIcon className="w-5 h-5 sm:w-6 sm:h-6" /> : <UserCheckIcon className="w-5 h-5 sm:w-6 sm:h-6" />}
             </div>
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-sm font-bold text-slate-900">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                <span className="text-xs sm:text-sm font-bold text-slate-900">
                   Selamat Datang, {currentUser?.first_name || currentUser?.username}!
                 </span>
                 <span
-                  className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                  className={`px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold ${
                     isAdmin
                       ? 'bg-blue-50 text-blue-700 border border-blue-200'
                       : 'bg-indigo-50 text-indigo-700 border border-indigo-200'
                   }`}
                 >
-                  {isAdmin ? 'Peran: Admin / TU' : `Peran: Wali Kelas ${currentUser?.kelas_diampu ? `(${currentUser.kelas_diampu})` : ''}`}
+                  {isAdmin ? 'Admin / TU' : `Wali Kelas ${currentUser?.kelas_diampu ? `(${currentUser.kelas_diampu})` : ''}`}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 leading-relaxed">
                 {isAdmin
-                  ? 'Pondok Pesantren Miftahul Huda Al-Faqih — Akses penuh: kelola data santri (CRUD), impor/ekspor Excel, dan data master mapel/semester.'
-                  : `Pondok Pesantren Miftahul Huda Al-Faqih — Akses input nilai santri pada Buku Induk dan cetak/unduh lembar PDF resmi.`}
+                  ? 'Akses penuh: kelola data santri (CRUD), impor/ekspor Excel, dan data master mapel/semester.'
+                  : 'Akses input nilai santri pada Buku Induk dan cetak/unduh dokumen PDF resmi.'}
               </p>
             </div>
           </div>
@@ -266,157 +266,165 @@ export default function Home() {
             <button
               type="button"
               onClick={() => setKelasFilter(currentUser.kelas_diampu)}
-              className="px-3.5 py-1.5 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl transition-all self-start sm:self-auto cursor-pointer"
+              className="px-3 py-1.5 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl transition-all self-start sm:self-auto cursor-pointer shrink-0"
             >
-              Filter Kelas Saya ({currentUser.kelas_diampu})
+              Filter Kelas ({currentUser.kelas_diampu})
             </button>
           )}
         </div>
 
         {/* Error notification if backend is offline */}
         {serverError && (
-          <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3 text-amber-900 animate-fade-in shadow-xs">
+          <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3 text-amber-900 animate-fade-in shadow-2xs">
             <AlertCircleIcon className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
             <div className="flex-1 text-xs sm:text-sm">
               <p className="font-bold">Koneksi Backend Belum Terhubung</p>
-              <p className="text-amber-700 mt-0.5">{serverError}</p>
-              <div className="mt-2 text-xs font-mono bg-white/70 p-2 rounded-lg inline-block border border-amber-200 text-amber-950">
+              <p className="text-amber-700 mt-0.5 text-xs">{serverError}</p>
+              <div className="mt-2 text-[11px] font-mono bg-white/80 p-2 rounded-lg inline-block border border-amber-200 text-amber-950">
                 cd backend &amp;&amp; python manage.py runserver
               </div>
             </div>
           </div>
         )}
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+        {/* Stats Grid - Adaptive 3-col on Mobile & Desktop */}
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-4 sm:mb-6">
+          <div className="bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/90 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Total Santri Terdaftar
+              <p className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">
+                Total Santri
               </p>
-              <p className="text-2xl font-extrabold text-slate-900 mt-1">
+              <p className="text-lg sm:text-2xl font-extrabold text-slate-900 mt-0.5 sm:mt-1">
                 {siswaList.length}
               </p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-              <UserIcon className="w-6 h-6" />
+            <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 self-end sm:self-auto">
+              <UserIcon className="w-4 h-4 sm:w-6 sm:h-6" />
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+          <div className="bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/90 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Mata Pelajaran
+              <p className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">
+                Mapel
               </p>
-              <p className="text-2xl font-extrabold text-slate-900 mt-1">
+              <p className="text-lg sm:text-2xl font-extrabold text-slate-900 mt-0.5 sm:mt-1">
                 {totalMapel}
               </p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-              <GraduationCapIcon className="w-6 h-6" />
+            <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 self-end sm:self-auto">
+              <GraduationCapIcon className="w-4 h-4 sm:w-6 sm:h-6" />
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+          <div className="bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/90 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Tahun &amp; Semester
+              <p className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">
+                Semester
               </p>
-              <p className="text-2xl font-extrabold text-slate-900 mt-1">
+              <p className="text-lg sm:text-2xl font-extrabold text-slate-900 mt-0.5 sm:mt-1">
                 {totalSemester}
               </p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <CalendarIcon className="w-6 h-6" />
+            <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 self-end sm:self-auto">
+              <CalendarIcon className="w-4 h-4 sm:w-6 sm:h-6" />
             </div>
           </div>
         </div>
 
-        {/* Action Bar & Filters */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs mb-6 space-y-3">
-          <div className="flex flex-col lg:flex-row gap-3 items-center justify-between">
+        {/* Action Bar & Filters (Adaptive Mobile Layout) */}
+        <div className="bg-white p-3 sm:p-4 rounded-2xl border border-slate-200/90 shadow-2xs mb-4 sm:mb-6 space-y-2.5 sm:space-y-3">
+          <div className="flex flex-col lg:flex-row gap-2.5 sm:gap-3 items-stretch lg:items-center justify-between">
             {/* Search Input */}
             <div className="relative w-full lg:w-96">
-              <SearchIcon className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <SearchIcon className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Cari berdasarkan NISN, Nama Santri, atau Alamat..."
+                placeholder="Cari NISN, Nama Santri, atau Alamat..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 text-xs sm:text-sm bg-white text-slate-900 font-semibold border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 placeholder:text-slate-400 transition-all shadow-2xs"
+                className="w-full pl-10 pr-4 py-2 sm:py-2.5 text-xs sm:text-sm bg-white text-slate-900 font-semibold border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 placeholder:text-slate-400 transition-all shadow-2xs"
               />
             </div>
 
-            {/* Filter Dropdowns & Actions */}
-            <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-              {/* Filter Kelas */}
-              <select
-                value={kelasFilter}
-                onChange={(e) => setKelasFilter(e.target.value)}
-                className="px-3 py-2 text-xs bg-white text-slate-900 font-bold border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-2xs"
-              >
-                <option value="">Semua Kelas</option>
-                {uniqueClasses.map((k) => (
-                  <option key={k} value={k}>
-                    Kelas {k}
-                  </option>
-                ))}
-              </select>
-
-              {/* Filter Status */}
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-3 py-2 text-xs bg-white text-slate-900 font-bold border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-2xs"
-              >
-                <option value="">Semua Status</option>
-                <option value="Aktif">Status: Aktif</option>
-                <option value="Lulus">Status: Lulus</option>
-                <option value="Pindah">Status: Pindah</option>
-                <option value="Keluar">Status: Keluar</option>
-              </select>
-
-              {/* Export Excel Button (Authenticated) */}
-              <button
-                type="button"
-                onClick={handleExportExcel}
-                disabled={exporting}
-                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold text-slate-800 bg-white hover:bg-slate-50 border border-slate-300 rounded-xl transition-all cursor-pointer shadow-2xs disabled:opacity-50"
-                title="Unduh data santri dalam format Excel"
-              >
-                <DownloadIcon className="w-4 h-4 text-slate-600" />
-                <span>{exporting ? 'Mengunduh...' : 'Export Excel'}</span>
-              </button>
-
-              {/* Import Excel Button (Hanya Admin / TU) */}
-              {isAdmin && (
-                <button
-                  onClick={() => setIsImportModalOpen(true)}
-                  type="button"
-                  className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl transition-all cursor-pointer shadow-2xs"
+            {/* Filters & Actions Group */}
+            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2">
+              {/* Dropdown Filters (2 Columns on Phone) */}
+              <div className="grid grid-cols-2 gap-2 w-full sm:w-auto">
+                {/* Filter Kelas */}
+                <select
+                  value={kelasFilter}
+                  onChange={(e) => setKelasFilter(e.target.value)}
+                  className="w-full px-2.5 sm:px-3 py-2 text-xs bg-white text-slate-900 font-bold border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-2xs"
                 >
-                  <FileSpreadsheetIcon className="w-4 h-4 text-emerald-700" />
-                  <span>Import Excel</span>
-                </button>
-              )}
+                  <option value="">Semua Kelas</option>
+                  {uniqueClasses.map((k) => (
+                    <option key={k} value={k}>
+                      Kelas {k}
+                    </option>
+                  ))}
+                </select>
 
-              {/* Tambah Santri Button (Hanya Admin / TU) */}
-              {isAdmin && (
-                <button
-                  onClick={handleOpenAdd}
-                  type="button"
-                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition-all cursor-pointer shrink-0"
+                {/* Filter Status */}
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="w-full px-2.5 sm:px-3 py-2 text-xs bg-white text-slate-900 font-bold border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-2xs"
                 >
-                  <PlusIcon className="w-4 h-4" />
-                  <span>Tambah Santri</span>
+                  <option value="">Semua Status</option>
+                  <option value="Aktif">Status: Aktif</option>
+                  <option value="Lulus">Status: Lulus</option>
+                  <option value="Pindah">Status: Pindah</option>
+                  <option value="Keluar">Status: Keluar</option>
+                </select>
+              </div>
+
+              {/* Action Buttons (Adaptive Grid on Phone) */}
+              <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 w-full sm:w-auto">
+                {/* Export Excel Button */}
+                <button
+                  type="button"
+                  onClick={handleExportExcel}
+                  disabled={exporting}
+                  className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-2 text-xs font-bold text-slate-800 bg-white hover:bg-slate-50 border border-slate-300 rounded-xl transition-all cursor-pointer shadow-2xs disabled:opacity-50"
+                  title="Unduh data santri dalam format Excel"
+                >
+                  <DownloadIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 shrink-0" />
+                  <span className="truncate">{exporting ? 'Mengunduh...' : 'Export Excel'}</span>
                 </button>
-              )}
+
+                {/* Import Excel Button (Hanya Admin / TU) */}
+                {isAdmin && (
+                  <button
+                    onClick={() => setIsImportModalOpen(true)}
+                    type="button"
+                    className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-2 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl transition-all cursor-pointer shadow-2xs"
+                  >
+                    <FileSpreadsheetIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-700 shrink-0" />
+                    <span className="truncate">Import Excel</span>
+                  </button>
+                )}
+
+                {/* Tambah Santri Button (Hanya Admin / TU) */}
+                {isAdmin && (
+                  <button
+                    onClick={handleOpenAdd}
+                    type="button"
+                    className="col-span-2 sm:col-span-1 inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition-all cursor-pointer shrink-0"
+                  >
+                    <PlusIcon className="w-4 h-4 shrink-0" />
+                    <span>Tambah Santri</span>
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Tabel Data Santri Pondok Pesantren */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        {/* ======================================================== */}
+        {/* DESKTOP VIEW: Full Data Table (Hidden on Mobile < 768px) */}
+        {/* ======================================================== */}
+        <div className="hidden md:block bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs sm:text-sm">
               <thead className="bg-slate-50 text-slate-600 font-semibold uppercase text-[11px] tracking-wider border-b border-slate-200">
@@ -516,7 +524,7 @@ export default function Home() {
                       {/* Actions */}
                       <td className="px-5 py-3.5 text-right">
                         <div className="inline-flex items-center gap-1">
-                          {/* Buku Induk & Nilai (Akses untuk Admin & Wali Kelas) */}
+                          {/* Buku Induk & Nilai */}
                           <button
                             onClick={() => handleOpenBukuInduk(siswa.id)}
                             type="button"
@@ -527,7 +535,7 @@ export default function Home() {
                             <span>Buku Induk</span>
                           </button>
 
-                          {/* Cetak / PDF (Akses untuk Admin & Wali Kelas) */}
+                          {/* Cetak / PDF */}
                           <button
                             onClick={() => handleOpenCetak(siswa.id)}
                             type="button"
@@ -535,10 +543,10 @@ export default function Home() {
                             title="Cetak Lembar Buku Induk Santri ke PDF"
                           >
                             <PrinterIcon className="w-3.5 h-3.5 text-slate-600" />
-                            <span className="hidden sm:inline">Cetak PDF</span>
+                            <span>Cetak PDF</span>
                           </button>
 
-                          {/* Edit Biodata (Hanya Admin / TU) */}
+                          {/* Edit Biodata (Admin) */}
                           {isAdmin && (
                             <button
                               onClick={() => handleOpenEdit(siswa)}
@@ -550,7 +558,7 @@ export default function Home() {
                             </button>
                           )}
 
-                          {/* Hapus Santri (Hanya Admin / TU) */}
+                          {/* Hapus Santri (Admin) */}
                           {isAdmin && (
                             <button
                               onClick={() => handleDelete(siswa)}
@@ -580,6 +588,141 @@ export default function Home() {
               </tbody>
             </table>
           </div>
+        </div>
+
+        {/* ======================================================== */}
+        {/* MOBILE / HP VIEW: Responsive Cards (Visible only on < md) */}
+        {/* ======================================================== */}
+        <div className="block md:hidden space-y-3">
+          {loading && siswaList.length === 0 ? (
+            <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center text-slate-400">
+              <div className="inline-block w-6 h-6 border-3 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+              <p className="mt-2 text-xs font-medium">Memuat data santri...</p>
+            </div>
+          ) : siswaList.length > 0 ? (
+            siswaList.map((siswa) => (
+              <div
+                key={siswa.id}
+                className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-3.5 space-y-3"
+              >
+                {/* Header Card: Foto, Nama, NISN, Badges */}
+                <div className="flex items-start gap-3">
+                  <div className="w-12 h-15 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center shrink-0">
+                    {siswa.foto_url || siswa.foto ? (
+                      <img
+                        src={siswa.foto_url || siswa.foto || ''}
+                        alt={siswa.nama_lengkap}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <UserIcon className="w-6 h-6 text-slate-400" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-1">
+                      <h3 className="text-sm font-bold text-slate-900 leading-snug truncate">
+                        {siswa.nama_lengkap}
+                      </h3>
+                      <span
+                        className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold border shrink-0 ${getStatusBadge(
+                          siswa.status_siswa
+                        )}`}
+                      >
+                        {siswa.status_siswa}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                      <span className="font-mono text-xs font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">
+                        NISN: {siswa.nisn}
+                      </span>
+                      <span className="text-[11px] font-bold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded">
+                        {siswa.kelas || '-'}
+                      </span>
+                      <span
+                        className={`text-[10px] font-extrabold px-1.5 py-0.2 rounded ${
+                          siswa.jenis_kelamin === 'L'
+                            ? 'bg-blue-50 text-blue-700'
+                            : 'bg-pink-50 text-pink-700'
+                        }`}
+                      >
+                        {siswa.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan'}
+                      </span>
+                    </div>
+
+                    <p className="text-[11px] text-slate-500 mt-1 flex items-center gap-1">
+                      <CalendarIcon className="w-3 h-3 text-slate-400 shrink-0" />
+                      <span>
+                        {siswa.tempat_lahir},{' '}
+                        {new Date(siswa.tanggal_lahir).toLocaleDateString('id-ID', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+
+                {/* Card Actions: Big Touch-Friendly Buttons */}
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 flex-1">
+                    {/* Buku Induk Button */}
+                    <button
+                      onClick={() => handleOpenBukuInduk(siswa.id)}
+                      type="button"
+                      className="flex-1 inline-flex items-center justify-center gap-1 py-2 px-2.5 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200/80 rounded-xl transition-colors cursor-pointer"
+                    >
+                      <FileTextIcon className="w-3.5 h-3.5" />
+                      <span>Buku Induk</span>
+                    </button>
+
+                    {/* Cetak PDF Button */}
+                    <button
+                      onClick={() => handleOpenCetak(siswa.id)}
+                      type="button"
+                      className="inline-flex items-center justify-center gap-1 py-2 px-2.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl transition-colors cursor-pointer"
+                      title="Cetak PDF"
+                    >
+                      <PrinterIcon className="w-3.5 h-3.5 text-slate-600" />
+                      <span className="hidden xs:inline">Cetak</span>
+                    </button>
+                  </div>
+
+                  {/* Admin Actions (Edit & Hapus) */}
+                  {isAdmin && (
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        onClick={() => handleOpenEdit(siswa)}
+                        type="button"
+                        className="p-2 text-slate-600 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition-colors cursor-pointer"
+                        title="Edit Biodata"
+                      >
+                        <EditIcon className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(siswa)}
+                        type="button"
+                        className="p-2 text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-colors cursor-pointer"
+                        title="Hapus Santri"
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center text-slate-400">
+              <p className="text-sm font-semibold text-slate-600">
+                Tidak ada data santri ditemukan.
+              </p>
+              <p className="text-xs text-slate-400 mt-1">
+                Coba sesuaikan kata kunci pencarian atau filter kelas.
+              </p>
+            </div>
+          )}
         </div>
       </main>
 

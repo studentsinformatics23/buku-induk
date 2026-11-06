@@ -76,20 +76,20 @@ export default function ImportExcelModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 my-8 flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 my-auto flex flex-col max-h-[94vh] sm:max-h-[90vh]">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-emerald-100 text-emerald-800">
-              <FileSpreadsheetIcon className="w-5 h-5" />
+        <div className="px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <div className="p-1.5 sm:p-2 rounded-xl bg-emerald-100 text-emerald-800 shrink-0">
+              <FileSpreadsheetIcon className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-slate-900">
+              <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
                 Import Data Santri Excel
               </h3>
-              <p className="text-xs text-slate-500 font-medium">
-                Unggah banyak data santri sekaligus dari file .xlsx
+              <p className="text-[11px] sm:text-xs text-slate-500 font-medium">
+                Unggah banyak data santri sekaligus dari berkas .xlsx
               </p>
             </div>
           </div>
@@ -103,9 +103,9 @@ export default function ImportExcelModal({
         </div>
 
         {/* Body */}
-        <div className="p-6 overflow-y-auto space-y-5">
+        <div className="p-3.5 sm:p-6 overflow-y-auto space-y-4 sm:space-y-5">
           {/* Step 1: Download Template */}
-          <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
+          <div className="p-3.5 sm:p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <p className="text-xs font-bold text-slate-800">
                 Langkah 1: Unduh Format Template
@@ -123,7 +123,7 @@ export default function ImportExcelModal({
                   setErrorMsg(e.message || 'Gagal mengunduh template.');
                 }
               }}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-blue-700 bg-white border border-blue-200 hover:bg-blue-50 rounded-xl transition-all shadow-2xs shrink-0 cursor-pointer"
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold text-blue-700 bg-white border border-blue-200 hover:bg-blue-50 rounded-xl transition-all shadow-2xs shrink-0 cursor-pointer"
             >
               <DownloadIcon className="w-4 h-4" />
               <span>Unduh Template</span>
@@ -140,7 +140,7 @@ export default function ImportExcelModal({
 
           {/* Result Card */}
           {result && (
-            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl space-y-3">
+            <div className="p-3.5 sm:p-4 bg-emerald-50 border border-emerald-200 rounded-xl space-y-3">
               <div className="flex items-center gap-2 text-emerald-900 font-bold text-xs sm:text-sm">
                 <CheckIcon className="w-5 h-5 text-emerald-600 shrink-0" />
                 <span>{result.message}</span>
@@ -148,7 +148,7 @@ export default function ImportExcelModal({
 
               <div className="grid grid-cols-2 gap-2 text-center text-xs">
                 <div className="bg-white p-2 rounded-lg border border-emerald-100">
-                  <span className="text-slate-500 block text-[10px] uppercase font-semibold">Siswa Baru</span>
+                  <span className="text-slate-500 block text-[10px] uppercase font-semibold">Santri Baru</span>
                   <span className="text-base font-extrabold text-emerald-700">{result.created_count}</span>
                 </div>
                 <div className="bg-white p-2 rounded-lg border border-emerald-100">
@@ -178,7 +178,7 @@ export default function ImportExcelModal({
               <label className="block text-xs font-bold text-slate-800 mb-1.5">
                 Langkah 2: Pilih File Excel (.xlsx)
               </label>
-              <div className="border-2 border-dashed border-slate-300 rounded-xl p-5 text-center bg-slate-50/50 hover:bg-slate-50 transition-colors">
+              <div className="border-2 border-dashed border-slate-300 rounded-xl p-4 sm:p-5 text-center bg-slate-50/50 hover:bg-slate-50 transition-colors">
                 <input
                   type="file"
                   id="excelFileInput"
@@ -208,8 +208,8 @@ export default function ImportExcelModal({
             </div>
 
             {/* Footer Buttons */}
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-              {file && (
+            <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+              {file ? (
                 <button
                   type="button"
                   onClick={handleReset}
@@ -217,20 +217,20 @@ export default function ImportExcelModal({
                 >
                   Ganti File
                 </button>
-              )}
+              ) : <div></div>}
 
-              <div className="flex items-center gap-2 ml-auto">
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                  className="px-3.5 sm:px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
                 >
                   Tutup
                 </button>
                 <button
                   type="submit"
                   disabled={uploading || !file}
-                  className="inline-flex items-center gap-1.5 px-5 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md shadow-emerald-600/20 transition-all cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md shadow-emerald-600/20 transition-all cursor-pointer disabled:opacity-50"
                 >
                   {uploading ? (
                     <>
@@ -240,7 +240,7 @@ export default function ImportExcelModal({
                   ) : (
                     <>
                       <UploadIcon className="w-4 h-4" />
-                      <span>Mulai Import Data</span>
+                      <span>Mulai Import</span>
                     </>
                   )}
                 </button>
@@ -252,4 +252,3 @@ export default function ImportExcelModal({
     </div>
   );
 }
-

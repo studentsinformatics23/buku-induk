@@ -58,29 +58,29 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 flex flex-col justify-center py-10 sm:px-6 lg:px-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 flex flex-col justify-center py-8 sm:py-12 px-3.5 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
         {/* App Logo Pesantren */}
-        <div className="inline-flex w-24 h-24 rounded-3xl bg-white p-3 items-center justify-center shadow-2xl shadow-blue-500/30 mb-3 ring-4 ring-blue-400/25">
+        <div className="inline-flex w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-white p-2.5 sm:p-3 items-center justify-center shadow-2xl shadow-blue-500/30 mb-3 ring-4 ring-blue-400/25">
           <img
             src="/logo.png"
             alt="Logo Pondok Pesantren Miftahul Huda Al-Faqih"
             className="w-full h-full object-contain"
           />
         </div>
-        <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight leading-snug">
+        <h1 className="text-lg sm:text-2xl font-extrabold text-white tracking-tight leading-snug">
           Aplikasi Buku Induk Santri
         </h1>
-        <p className="mt-1 text-sm font-semibold text-blue-300">
+        <p className="mt-1 text-xs sm:text-sm font-semibold text-blue-300">
           Pondok Pesantren Miftahul Huda Al-Faqih
         </p>
-        <p className="text-[11px] text-slate-400 mt-0.5">
+        <p className="text-[10px] sm:text-[11px] text-slate-400 mt-0.5">
           Sistem Informasi &amp; Rekapitulasi Nilai Akademik Santri
         </p>
       </div>
 
-      <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-7 px-6 sm:px-9 shadow-2xl rounded-3xl border border-slate-100">
+      <div className="mt-5 sm:mt-6 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-6 px-4 sm:py-8 sm:px-9 shadow-2xl rounded-3xl border border-slate-100">
           <div className="mb-5 pb-3 border-b border-slate-100">
             <h2 className="text-base font-bold text-slate-900">Masuk ke Sistem</h2>
             <p className="text-xs text-slate-500 mt-0.5">

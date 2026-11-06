@@ -142,30 +142,30 @@ export default function BukuIndukModal({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
-        <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200 my-6">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
+        <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[94vh] sm:max-h-[90vh] flex flex-col overflow-hidden border border-slate-200 my-auto">
           {/* Header Modal */}
-          <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-            <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-blue-100 text-blue-700">
-                <FileTextIcon className="w-5 h-5" />
+          <div className="px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
+            <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+              <div className="p-1.5 sm:p-2 rounded-xl bg-blue-100 text-blue-700 shrink-0">
+                <FileTextIcon className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              <div>
-                <h3 className="text-lg font-bold text-slate-900">
+              <div className="min-w-0">
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 truncate">
                   Buku Induk Santri
                 </h3>
-                <p className="text-xs text-slate-500 font-medium">
-                  Profil lengkap &amp; evaluasi hasil belajar santri Pondok Pesantren Miftahul Huda Al-Faqih.
+                <p className="text-[10px] sm:text-xs text-slate-500 font-medium truncate max-w-[200px] sm:max-w-none">
+                  Profil lengkap &amp; evaluasi hasil belajar santri Ponpes Miftahul Huda Al-Faqih.
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               <button
                 onClick={() => setShowCetakModal(true)}
                 type="button"
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-slate-800 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer shadow-2xs"
+                className="inline-flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 text-xs font-bold text-slate-800 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer shadow-2xs"
               >
-                <PrinterIcon className="w-4 h-4 text-slate-600" />
+                <PrinterIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600" />
                 <span>Cetak / PDF</span>
               </button>
               <button
@@ -179,7 +179,7 @@ export default function BukuIndukModal({
           </div>
 
           {/* Modal Body */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          <div className="flex-1 overflow-y-auto p-3.5 sm:p-6 space-y-4 sm:space-y-6">
             {loading ? (
               <div className="py-20 text-center">
                 <div className="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
@@ -396,68 +396,116 @@ export default function BukuIndukModal({
                     </form>
                   )}
 
-                  {/* Tabel Nilai */}
-                  <div className="overflow-x-auto border border-slate-200 rounded-xl">
-                    <table className="w-full text-left text-xs">
-                      <thead className="bg-slate-100 text-slate-700 font-bold border-b border-slate-200 uppercase tracking-wider text-[11px]">
-                        <tr>
-                          <th className="px-4 py-3">Tahun &amp; Semester</th>
-                          <th className="px-4 py-3">Kode</th>
-                          <th className="px-4 py-3">Mata Pelajaran</th>
-                          <th className="px-4 py-3 text-center">Nilai Angka</th>
-                          <th className="px-4 py-3 text-center">Predikat</th>
-                          <th className="px-4 py-3 text-right">Aksi</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {siswa.nilai_list && siswa.nilai_list.length > 0 ? (
-                          siswa.nilai_list.map((nilai: NilaiSiswa) => {
-                            const pred = getPredikat(nilai.nilai_angka);
-                            return (
-                              <tr key={nilai.id} className="hover:bg-slate-50 transition-colors">
-                                <td className="px-4 py-3 font-semibold text-slate-900">
+                  {/* Daftar Nilai - Tampilan Desktop & Mobile */}
+                  {siswa.nilai_list && siswa.nilai_list.length > 0 ? (
+                    <>
+                      {/* Desktop Table View */}
+                      <div className="hidden sm:block overflow-x-auto border border-slate-200 rounded-xl">
+                        <table className="w-full text-left text-xs">
+                          <thead className="bg-slate-100 text-slate-700 font-bold border-b border-slate-200 uppercase tracking-wider text-[11px]">
+                            <tr>
+                              <th className="px-4 py-3">Tahun &amp; Semester</th>
+                              <th className="px-4 py-3">Kode</th>
+                              <th className="px-4 py-3">Mata Pelajaran</th>
+                              <th className="px-4 py-3 text-center">Nilai Angka</th>
+                              <th className="px-4 py-3 text-center">Predikat</th>
+                              <th className="px-4 py-3 text-right">Aksi</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100">
+                            {siswa.nilai_list.map((nilai: NilaiSiswa) => {
+                              const pred = getPredikat(nilai.nilai_angka);
+                              return (
+                                <tr key={nilai.id} className="hover:bg-slate-50 transition-colors">
+                                  <td className="px-4 py-3 font-semibold text-slate-900">
+                                    {nilai.tahun_semester_display || '-'}
+                                  </td>
+                                  <td className="px-4 py-3 font-mono font-bold text-slate-600">
+                                    {nilai.mata_pelajaran_kode || '-'}
+                                  </td>
+                                  <td className="px-4 py-3 font-semibold text-slate-900">
+                                    {nilai.mata_pelajaran_nama}
+                                  </td>
+                                  <td className="px-4 py-3 text-center font-bold text-slate-950 font-mono text-sm">
+                                    {nilai.nilai_angka}
+                                  </td>
+                                  <td className="px-4 py-3 text-center">
+                                    <span
+                                      className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${pred.color}`}
+                                    >
+                                      {pred.grade}
+                                    </span>
+                                  </td>
+                                  <td className="px-4 py-3 text-right">
+                                    <button
+                                      onClick={() => handleDeleteNilai(nilai.id)}
+                                      type="button"
+                                      className="text-red-500 hover:text-red-700 p-1 rounded-md hover:bg-red-50 transition-colors cursor-pointer"
+                                      title="Hapus Nilai"
+                                    >
+                                      <TrashIcon className="w-4 h-4" />
+                                    </button>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Mobile Cards View */}
+                      <div className="block sm:hidden space-y-2">
+                        {siswa.nilai_list.map((nilai: NilaiSiswa) => {
+                          const pred = getPredikat(nilai.nilai_angka);
+                          return (
+                            <div
+                              key={nilai.id}
+                              className="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between gap-3"
+                            >
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="font-mono text-[10px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.2 rounded">
+                                    {nilai.mata_pelajaran_kode || 'MP'}
+                                  </span>
+                                  <p className="font-bold text-slate-900 text-xs truncate">
+                                    {nilai.mata_pelajaran_nama}
+                                  </p>
+                                </div>
+                                <p className="text-[11px] text-slate-500 mt-0.5">
                                   {nilai.tahun_semester_display || '-'}
-                                </td>
-                                <td className="px-4 py-3 font-mono font-bold text-slate-600">
-                                  {nilai.mata_pelajaran_kode || '-'}
-                                </td>
-                                <td className="px-4 py-3 font-semibold text-slate-900">
-                                  {nilai.mata_pelajaran_nama}
-                                </td>
-                                <td className="px-4 py-3 text-center font-bold text-slate-950 font-mono text-sm">
-                                  {nilai.nilai_angka}
-                                </td>
-                                <td className="px-4 py-3 text-center">
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <div className="text-right">
+                                  <span className="font-mono font-black text-sm text-slate-950 block leading-tight">
+                                    {nilai.nilai_angka}
+                                  </span>
                                   <span
-                                    className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${pred.color}`}
+                                    className={`inline-block px-1.5 py-0.2 rounded text-[10px] font-bold border ${pred.color}`}
                                   >
                                     {pred.grade}
                                   </span>
-                                </td>
-                                <td className="px-4 py-3 text-right">
-                                  <button
-                                    onClick={() => handleDeleteNilai(nilai.id)}
-                                    type="button"
-                                    className="text-red-500 hover:text-red-700 p-1 rounded-md hover:bg-red-50 transition-colors cursor-pointer"
-                                    title="Hapus Nilai"
-                                  >
-                                    <TrashIcon className="w-4 h-4" />
-                                  </button>
-                                </td>
-                              </tr>
-                            );
-                          })
-                        ) : (
-                          <tr>
-                            <td colSpan={6} className="px-4 py-8 text-center text-slate-500 font-medium">
-                              Belum ada riwayat nilai untuk siswa ini. Klik tombol{' '}
-                              <strong className="text-blue-600">Input Nilai</strong> untuk menambahkan.
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
+                                </div>
+                                <button
+                                  onClick={() => handleDeleteNilai(nilai.id)}
+                                  type="button"
+                                  className="p-1.5 text-red-500 hover:text-red-700 bg-red-50 rounded-lg cursor-pointer"
+                                  title="Hapus Nilai"
+                                >
+                                  <TrashIcon className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="border border-slate-200 rounded-xl px-4 py-8 text-center text-slate-500 text-xs font-medium">
+                      Belum ada riwayat nilai untuk santri ini. Klik tombol{' '}
+                      <strong className="text-blue-600">Input Nilai</strong> untuk menambahkan.
+                    </div>
+                  )}
                 </div>
               </>
             ) : (

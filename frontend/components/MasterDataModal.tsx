@@ -94,16 +94,16 @@ export default function MasterDataModal({ isOpen, onClose }: MasterDataModalProp
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-200 flex flex-col max-h-[85vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-200 flex flex-col max-h-[94vh] sm:max-h-[85vh] my-auto">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div className="px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
           <div>
-            <h3 className="text-lg font-bold text-slate-900">
+            <h3 className="text-base sm:text-lg font-bold text-slate-900">
               Kelola Data Master
             </h3>
-            <p className="text-xs text-slate-500 font-medium">
-              Mata Pelajaran & Tahun Ajaran / Semester
+            <p className="text-[11px] sm:text-xs text-slate-500 font-medium">
+              Mata Pelajaran &amp; Tahun Ajaran / Semester
             </p>
           </div>
           <button
@@ -116,11 +116,11 @@ export default function MasterDataModal({ isOpen, onClose }: MasterDataModalProp
         </div>
 
         {/* Tab Header */}
-        <div className="flex border-b border-slate-200 bg-slate-50/50 px-6">
+        <div className="flex border-b border-slate-200 bg-slate-50/50 px-3 sm:px-6 overflow-x-auto shrink-0">
           <button
             onClick={() => setActiveTab('mapel')}
             type="button"
-            className={`py-3 px-4 text-xs font-bold border-b-2 flex items-center gap-2 cursor-pointer transition-colors ${
+            className={`py-2.5 sm:py-3 px-3 sm:px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 sm:gap-2 cursor-pointer transition-colors whitespace-nowrap ${
               activeTab === 'mapel'
                 ? 'border-blue-600 text-blue-600'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
@@ -133,23 +133,23 @@ export default function MasterDataModal({ isOpen, onClose }: MasterDataModalProp
           <button
             onClick={() => setActiveTab('tahun')}
             type="button"
-            className={`py-3 px-4 text-xs font-bold border-b-2 flex items-center gap-2 cursor-pointer transition-colors ${
+            className={`py-2.5 sm:py-3 px-3 sm:px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 sm:gap-2 cursor-pointer transition-colors whitespace-nowrap ${
               activeTab === 'tahun'
                 ? 'border-blue-600 text-blue-600'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
             <CalendarIcon className="w-4 h-4" />
-            <span>Tahun & Semester ({tahunList.length})</span>
+            <span>Tahun &amp; Semester ({tahunList.length})</span>
           </button>
         </div>
 
         {/* Tab Content */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-3.5 sm:p-6 space-y-4 sm:space-y-6">
           {activeTab === 'mapel' ? (
             <>
               {/* Form Input Mapel */}
-              <form onSubmit={handleCreateMapel} className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+              <form onSubmit={handleCreateMapel} className="p-3.5 sm:p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
                 <h4 className="text-xs font-bold text-slate-900">Tambah Mata Pelajaran</h4>
                 {errorMapel && (
                   <div className="p-2 bg-red-100 text-red-700 rounded-lg text-xs flex items-center gap-2">
@@ -157,12 +157,12 @@ export default function MasterDataModal({ isOpen, onClose }: MasterDataModalProp
                     <span>{errorMapel}</span>
                   </div>
                 )}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
                   <div>
                     <input
                       type="text"
                       required
-                      placeholder="Kode (misal: MTK-1)"
+                      placeholder="Kode (misal: FIQ-1)"
                       value={kodeMapel}
                       onChange={(e) => setKodeMapel(e.target.value)}
                       className="w-full px-3 py-2 text-xs bg-white text-slate-900 font-bold border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 placeholder:text-slate-400 shadow-2xs"
@@ -172,7 +172,7 @@ export default function MasterDataModal({ isOpen, onClose }: MasterDataModalProp
                     <input
                       type="text"
                       required
-                      placeholder="Nama Mata Pelajaran (misal: Matematika)"
+                      placeholder="Nama Mapel (misal: Fiqih / Nahwu)"
                       value={namaMapel}
                       onChange={(e) => setNamaMapel(e.target.value)}
                       className="w-full px-3 py-2 text-xs bg-white text-slate-900 font-semibold border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 placeholder:text-slate-400 shadow-2xs"
@@ -180,7 +180,7 @@ export default function MasterDataModal({ isOpen, onClose }: MasterDataModalProp
                     <button
                       type="submit"
                       disabled={savingMapel}
-                      className="inline-flex items-center gap-1 px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shrink-0 cursor-pointer disabled:opacity-50 shadow-xs"
+                      className="inline-flex items-center gap-1 px-3.5 sm:px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shrink-0 cursor-pointer disabled:opacity-50 shadow-xs"
                     >
                       <PlusIcon className="w-3.5 h-3.5" />
                       <span>{savingMapel ? '...' : 'Tambah'}</span>
@@ -194,16 +194,16 @@ export default function MasterDataModal({ isOpen, onClose }: MasterDataModalProp
                 <table className="w-full text-left text-xs">
                   <thead className="bg-slate-100 text-slate-700 uppercase text-[10px] font-bold">
                     <tr>
-                      <th className="px-4 py-2.5">Kode</th>
-                      <th className="px-4 py-2.5">Nama Mata Pelajaran</th>
+                      <th className="px-3.5 sm:px-4 py-2.5">Kode</th>
+                      <th className="px-3.5 sm:px-4 py-2.5">Nama Mata Pelajaran</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {mapelList.length > 0 ? (
                       mapelList.map((m) => (
                         <tr key={m.id} className="hover:bg-slate-50">
-                          <td className="px-4 py-2.5 font-mono font-bold text-blue-700">{m.kode_mapel}</td>
-                          <td className="px-4 py-2.5 text-slate-900 font-semibold">{m.nama_mapel}</td>
+                          <td className="px-3.5 sm:px-4 py-2.5 font-mono font-bold text-blue-700">{m.kode_mapel}</td>
+                          <td className="px-3.5 sm:px-4 py-2.5 text-slate-900 font-semibold">{m.nama_mapel}</td>
                         </tr>
                       ))
                     ) : (
@@ -220,15 +220,15 @@ export default function MasterDataModal({ isOpen, onClose }: MasterDataModalProp
           ) : (
             <>
               {/* Form Input Tahun & Semester */}
-              <form onSubmit={handleCreateTahun} className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-                <h4 className="text-xs font-bold text-slate-900">Tambah Tahun Ajaran & Semester</h4>
+              <form onSubmit={handleCreateTahun} className="p-3.5 sm:p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+                <h4 className="text-xs font-bold text-slate-900">Tambah Tahun Ajaran &amp; Semester</h4>
                 {errorTahun && (
                   <div className="p-2 bg-red-100 text-red-700 rounded-lg text-xs flex items-center gap-2">
                     <AlertCircleIcon className="w-4 h-4 shrink-0" />
                     <span>{errorTahun}</span>
                   </div>
                 )}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
                   <div>
                     <input
                       type="text"
@@ -267,16 +267,16 @@ export default function MasterDataModal({ isOpen, onClose }: MasterDataModalProp
                 <table className="w-full text-left text-xs">
                   <thead className="bg-slate-100 text-slate-700 uppercase text-[10px] font-bold">
                     <tr>
-                      <th className="px-4 py-2.5">Tahun Ajaran</th>
-                      <th className="px-4 py-2.5">Semester</th>
+                      <th className="px-3.5 sm:px-4 py-2.5">Tahun Ajaran</th>
+                      <th className="px-3.5 sm:px-4 py-2.5">Semester</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {tahunList.length > 0 ? (
                       tahunList.map((t) => (
                         <tr key={t.id} className="hover:bg-slate-50">
-                          <td className="px-4 py-2.5 font-bold text-slate-900">{t.tahun_ajaran}</td>
-                          <td className="px-4 py-2.5 text-slate-700">
+                          <td className="px-3.5 sm:px-4 py-2.5 font-bold text-slate-900">{t.tahun_ajaran}</td>
+                          <td className="px-3.5 sm:px-4 py-2.5 text-slate-700">
                             <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                               t.semester === 'Ganjil' ? 'bg-indigo-100 text-indigo-900' : 'bg-emerald-100 text-emerald-900'
                             }`}>
@@ -288,7 +288,7 @@ export default function MasterDataModal({ isOpen, onClose }: MasterDataModalProp
                     ) : (
                       <tr>
                         <td colSpan={2} className="px-4 py-6 text-center text-slate-400 font-medium">
-                          Belum ada data tahun & semester.
+                          Belum ada data tahun &amp; semester.
                         </td>
                       </tr>
                     )}

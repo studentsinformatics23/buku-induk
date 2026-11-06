@@ -61,28 +61,28 @@ export default function CetakBukuIndukModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/70 backdrop-blur-xs overflow-y-auto print:p-0 print:bg-white print:static print:inset-auto">
       {/* Container Dokumen */}
-      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full overflow-hidden border border-slate-200 my-4 flex flex-col max-h-[92vh] print:max-h-none print:shadow-none print:border-none print:rounded-none print:m-0 print:w-full">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full overflow-hidden border border-slate-200 my-auto flex flex-col max-h-[94vh] sm:max-h-[92vh] print:max-h-none print:shadow-none print:border-none print:rounded-none print:m-0 print:w-full">
         {/* Floating Action Bar (Hidden saat Cetak / Print) */}
-        <div className="px-6 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50 print:hidden shrink-0">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-              Pratinjau Cetak / PDF Buku Induk Santri
+        <div className="px-3 sm:px-6 py-2.5 sm:py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50 print:hidden shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+            <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-700 truncate">
+              Pratinjau Cetak / PDF
             </span>
-            <span className="text-xs text-slate-400">&bull; Standar A4 Resmi</span>
+            <span className="text-[10px] sm:text-xs text-slate-400 hidden xs:inline">&bull; Standar A4 Resmi</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <button
               onClick={handlePrint}
               type="button"
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition-all cursor-pointer"
+              className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition-all cursor-pointer"
             >
-              <PrinterIcon className="w-4 h-4" />
-              <span>Cetak / Simpan PDF</span>
+              <PrinterIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span>Cetak / PDF</span>
             </button>
             <button
               onClick={onClose}
               type="button"
-              className="p-2 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-200/60 transition-colors cursor-pointer"
+              className="p-1.5 sm:p-2 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-200/60 transition-colors cursor-pointer"
             >
               <XIcon className="w-5 h-5" />
             </button>
@@ -90,7 +90,7 @@ export default function CetakBukuIndukModal({
         </div>
 
         {/* Lembar Kertas Resmi (Printable Area) */}
-        <div className="flex-1 overflow-y-auto p-6 sm:p-10 text-slate-900 font-sans print:p-0 print:overflow-visible">
+        <div className="flex-1 overflow-y-auto p-3.5 sm:p-6 md:p-10 text-slate-900 font-sans print:p-0 print:overflow-visible">
           {loading ? (
             <div className="py-20 text-center print:hidden">
               <div className="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>

@@ -130,15 +130,15 @@ export default function SiswaModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto animate-fade-in">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-200 my-8 flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto animate-fade-in">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-200 my-auto flex flex-col max-h-[94vh] sm:max-h-[90vh]">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div className="px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
           <div>
-            <h3 className="text-lg font-bold text-slate-900">
+            <h3 className="text-base sm:text-lg font-bold text-slate-900">
               {siswaToEdit ? 'Edit Data Santri' : 'Tambah Santri Baru'}
             </h3>
-            <p className="text-xs text-slate-500 font-medium">
+            <p className="text-[11px] sm:text-xs text-slate-500 font-medium">
               Data pokok santri Pondok Pesantren Miftahul Huda Al-Faqih.
             </p>
           </div>
@@ -152,7 +152,7 @@ export default function SiswaModal({
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto">
           {errorMessage && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2.5 text-xs text-red-700">
               <AlertCircleIcon className="w-4 h-4 shrink-0 mt-0.5" />
@@ -160,11 +160,11 @@ export default function SiswaModal({
             </div>
           )}
 
-          {/* Section 1: Data Pokok Siswa */}
+          {/* Section 1: Data Pokok Santri */}
           <div>
-            <h4 className="text-xs font-bold text-blue-800 uppercase tracking-wider mb-3 pb-1 border-b border-blue-100 flex items-center gap-1.5">
+            <h4 className="text-xs font-bold text-blue-800 uppercase tracking-wider mb-2.5 pb-1 border-b border-blue-100 flex items-center gap-1.5">
               <UserIcon className="w-4 h-4" />
-              <span>Data Pokok Siswa</span>
+              <span>Data Pokok Santri</span>
             </h4>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -406,7 +406,7 @@ export default function SiswaModal({
           </div>
 
           {/* Footer Buttons */}
-          <div className="pt-4 border-t border-slate-200 flex items-center justify-end gap-3 sticky bottom-0 bg-white">
+          <div className="pt-3 pb-1 border-t border-slate-200 flex items-center justify-end gap-2.5 sticky bottom-0 bg-white">
             <button
               type="button"
               onClick={onClose}
@@ -420,7 +420,7 @@ export default function SiswaModal({
               disabled={submitting}
               className="px-5 py-2 text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/25 transition-all cursor-pointer disabled:opacity-50"
             >
-              {submitting ? 'Menyimpan...' : (siswaToEdit ? 'Perbarui Data' : 'Simpan Siswa')}
+              {submitting ? 'Menyimpan...' : (siswaToEdit ? 'Perbarui Data' : 'Simpan Santri')}
             </button>
           </div>
         </form>
