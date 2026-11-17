@@ -8,6 +8,9 @@ Aplikasi Sistem Informasi **Buku Induk Santri dan Rekapitulasi Nilai Akademik** 
 
 Aplikasi dibangun dengan arsitektur monorepo modern yang menggabungkan backend handal (**Django 4.2 REST Framework**) dan frontend adaptif berkecepatan tinggi (**Next.js 16 App Router, React & Tailwind CSS**).
 
+> [!TIP]
+> **Dokumentasi Lengkap Alur Program**: Untuk analisis teknis, diagram alur kerja (*flowchart* per role), *sequence diagram*, dan skema relasi basis data (ERD), silakan baca dokumen **[ALUR_PROGRAM.md](ALUR_PROGRAM.md)**.
+
 ---
 
 ## Daftar Isi
