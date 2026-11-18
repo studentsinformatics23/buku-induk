@@ -14,7 +14,10 @@ Dokumen ini menjelaskan alur kerja (*workflow*), arsitektur sistem, skema data, 
    - [3.3 Alur Kerja Santri / Siswa (Portal Mandiri)](#33-alur-kerja-santri--siswa-portal-mandiri)
 4. [Alur Impor & Ekspor Berkas Excel (.xlsx)](#4-alur-impor--ekspor-berkas-excel-xlsx)
 5. [Alur Evaluasi Nilai & Cetak Dokumen PDF Resmi](#5-alur-evaluasi-nilai--cetak-dokumen-pdf-resmi)
-6. [Skema Relasi Database (ERD)](#6-skema-relasi-database-erd)
+6. [Skema Relasi Database (ERD) & Kamus Data](#6-skema-relasi-database-erd--kamus-data)
+   - [6.1 Diagram Relasi Antar Entitas (ERD)](#61-diagram-relasi-antar-entitas-erd)
+   - [6.2 Rancangan Struktur Tabel Database (Data Dictionary)](#62-rancangan-struktur-tabel-database-data-dictionary)
+   - [6.3 Relasi Kunci Asing & Integritas Referensial](#63-relasi-kunci-asing--integritas-referensial)
 7. [Mekanisme Keamanan & Validasi Sistem](#7-mekanisme-keamanan--validasi-sistem)
 
 ---
@@ -242,7 +245,9 @@ flowchart LR
 
 ---
 
-## 6. Skema Relasi Database (ERD)
+## 6. Skema Relasi Database (ERD) & Kamus Data
+
+### 6.1 Diagram Relasi Antar Entitas (ERD)
 
 Diagram berikut menggambarkan entitas utama dalam basis data MySQL:
 
@@ -311,6 +316,120 @@ erDiagram
         decimal nilai_angka "Skala 0 - 100"
     }
 ```
+
+---
+
+### 6.2 Rancangan Struktur Tabel Database (Data Dictionary)
+
+Berikut adalah rincian struktur kolom, tipe data, indeks, serta batasan (*constraints*) untuk setiap tabel pada basis data:
+
+#### 1. Tabel `auth_user` (Tabel Inti Autentikasi Pengguna)
+Tabel bawaan Django untuk menangani kredensial dan sesi otentikasi login seluruh pengguna.
+
+| Nama Kolom | Tipe Data | Kunci | Nullable | Nilai Default | Keterangan & Aturan Validasi |
+| :--- | :--- | :---: | :---: | :--- | :--- |
+| `id` | `INT AUTO_INCREMENT` | **PK** | Tidak | Auto | Identifikator unik pengguna. |
+| `username` | `VARCHAR(150)` | **UK** | Tidak | - | Nama login unik (Admin/Wali Kelas: username teks, Santri: nomor NISN). |
+| `password` | `VARCHAR(128)` | - | Tidak | - | Hash kata sandi terenkripsi (PBKDF2 SHA-256). |
+| `first_name` | `VARCHAR(150)` | - | Ya | `""` | Nama depan pengguna / sapaan. |
+| `last_name` | `VARCHAR(150)` | - | Ya | `""` | Nama belakang pengguna. |
+| `email` | `VARCHAR(254)` | - | Ya | `""` | Alamat surel pengguna. |
+| `is_staff` | `TINYINT(1)` | - | Tidak | `0` | Penanda izin akses ke Django admin backend (`True`/`False`). |
+| `is_active` | `TINYINT(1)` | - | Tidak | `1` | Status akun aktif atau dibekukan. |
+| `is_superuser` | `TINYINT(1)` | - | Tidak | `0` | Hak istimewa tertinggi superadmin. |
+| `date_joined` | `DATETIME(6)` | - | Tidak | `CURRENT_TIMESTAMP` | Waktu akun dibuat di sistem. |
+
+---
+
+#### 2. Tabel `accounts_userprofile` (Ekstensi Profil & Hak Akses Pengguna)
+Menyimpan atribut hak akses (*role-based access control*), penetapan kelas yang diampu bagi wali kelas, serta tautan ke data santri.
+
+| Nama Kolom | Tipe Data | Kunci | Nullable | Nilai Default | Keterangan & Aturan Validasi |
+| :--- | :--- | :---: | :---: | :--- | :--- |
+| `id` | `BIGINT AUTO_INCREMENT` | **PK** | Tidak | Auto | Identifikator unik profil. |
+| `user_id` | `INT` | **FK, UK** | Tidak | - | Relasi One-to-One ke `auth_user.id` (`ON DELETE CASCADE`). |
+| `role` | `VARCHAR(20)` | - | Tidak | `'wali_kelas'` | Peran pengguna: `'admin'`, `'wali_kelas'`, atau `'siswa'`. |
+| `kelas_diampu` | `VARCHAR(100)` | - | Ya | `""` | Tingkat kelas yang diampu wali kelas (misal: `"7A"`, `"8B"`, `"10A"`, dll). |
+| `siswa_id` | `BIGINT` | **FK** | Ya | `NULL` | Relasi ke `siswa_siswa.id` (`ON DELETE SET_NULL`). Diisi jika role adalah `'siswa'`. |
+
+---
+
+#### 3. Tabel `siswa_siswa` (Data Pokok Santri / Buku Induk)
+Menyimpan informasi identitas santri, asal kelahiran, domisili, wali santri, status pendidikan, dan berkas foto formal santri.
+
+| Nama Kolom | Tipe Data | Kunci | Nullable | Nilai Default | Keterangan & Aturan Validasi |
+| :--- | :--- | :---: | :---: | :--- | :--- |
+| `id` | `BIGINT AUTO_INCREMENT` | **PK** | Tidak | Auto | Identifikator unik record santri. |
+| `nisn` | `VARCHAR(20)` | **UK** | Tidak | - | Nomor Induk Siswa Nasional (harus unik untuk tiap santri). |
+| `nama_lengkap` | `VARCHAR(100)` | - | Tidak | - | Nama lengkap santri sesuai dokumen akta kelahiran / ijazah. |
+| `jenis_kelamin` | `VARCHAR(1)` | - | Tidak | `'L'` | Pilihan jenis kelamin: `'L'` (Laki-laki) atau `'P'` (Perempuan). |
+| `tempat_lahir` | `VARCHAR(50)` | - | Tidak | - | Kota atau kabupaten tempat kelahiran santri. |
+| `tanggal_lahir` | `DATE` | - | Tidak | - | Tanggal lahir santri (format standar: `YYYY-MM-DD`). |
+| `agama` | `VARCHAR(20)` | - | Tidak | `'Islam'` | Agama santri (pilihan: `'Islam'`, `'Kristen'`, `'Katolik'`, `'Hindu'`, `'Buddha'`, `'Konghucu'`). |
+| `alamat` | `TEXT` | - | Tidak | - | Alamat tempat tinggal lengkap santri. |
+| `kelas` | `VARCHAR(50)` | - | Tidak | `'7A'` | Kelas santri saat ini (Kelas 7, 8, 9 [SMP] hingga Kelas 10, 11, 12 [SMA]). |
+| `nama_ayah` | `VARCHAR(100)` | - | Ya | `""` | Nama lengkap ayah kandung / wali laki-laki. |
+| `nama_ibu` | `VARCHAR(100)` | - | Ya | `""` | Nama lengkap ibu kandung. |
+| `pekerjaan_ortu`| `VARCHAR(100)` | - | Ya | `""` | Pekerjaan utama orang tua / wali santri. |
+| `no_telepon_ortu`| `VARCHAR(20)` | - | Ya | `""` | Nomor kontak/telepon/WhatsApp orang tua atau wali. |
+| `status_siswa` | `VARCHAR(20)` | - | Tidak | `'Aktif'` | Status pendidikan santri: `'Aktif'`, `'Lulus'`, `'Pindah'`, atau `'Keluar'`. |
+| `foto` | `VARCHAR(100)` | - | Ya | `NULL` | Alamat path berkas pas foto santri yang tersimpan di server (`foto_siswa/...`). |
+
+---
+
+#### 4. Tabel `siswa_tahunsemester` (Periode Tahun Ajaran & Semester)
+Menyimpan daftar tahun pelajaran dan periode semester untuk pengelompokan riwayat evaluasi nilai santri.
+
+| Nama Kolom | Tipe Data | Kunci | Nullable | Nilai Default | Keterangan & Aturan Validasi |
+| :--- | :--- | :---: | :---: | :--- | :--- |
+| `id` | `BIGINT AUTO_INCREMENT` | **PK** | Tidak | Auto | Identifikator unik periode akademik. |
+| `tahun_ajaran` | `VARCHAR(20)` | - | Tidak | - | Format tahun ajaran, contoh: `"2025/2026"`, `"2026/2027"`. |
+| `semester` | `VARCHAR(10)` | - | Tidak | - | Pilihan semester: `'Ganjil'` atau `'Genap'`. |
+
+---
+
+#### 5. Tabel `siswa_matapelajaran` (Katalog Mata Pelajaran)
+Menyimpan master data mata pelajaran kurikulum pondok pesantren dan sekolah umum/terpadu.
+
+| Nama Kolom | Tipe Data | Kunci | Nullable | Nilai Default | Keterangan & Aturan Validasi |
+| :--- | :--- | :---: | :---: | :--- | :--- |
+| `id` | `BIGINT AUTO_INCREMENT` | **PK** | Tidak | Auto | Identifikator unik mata pelajaran. |
+| `kode_mapel` | `VARCHAR(20)` | **UK** | Tidak | - | Kode unik singkatan mata pelajaran (contoh: `"PAI"`, `"MTK"`, `"BIG"`, `"TIK"`). |
+| `nama_mapel` | `VARCHAR(100)` | - | Tidak | - | Nama lengkap mata pelajaran (contoh: `"Pendidikan Agama Islam"`, `"Matematika"`). |
+
+---
+
+#### 6. Tabel `siswa_nilaisiswa` (Catatan Evaluasi Nilai Hasil Belajar)
+Menyimpan nilai kuantitatif santri per mata pelajaran pada periode tahun ajaran dan semester tertentu.
+
+| Nama Kolom | Tipe Data | Kunci | Nullable | Nilai Default | Keterangan & Aturan Validasi |
+| :--- | :--- | :---: | :---: | :--- | :--- |
+| `id` | `BIGINT AUTO_INCREMENT` | **PK** | Tidak | Auto | Identifikator unik catatan nilai. |
+| `siswa_id` | `BIGINT` | **FK** | Tidak | - | Relasi ke `siswa_siswa.id` (`ON DELETE CASCADE`). |
+| `tahun_semester_id` | `BIGINT` | **FK** | Tidak | - | Relasi ke `siswa_tahunsemester.id` (`ON DELETE CASCADE`). |
+| `mata_pelajaran_id` | `BIGINT` | **FK** | Tidak | - | Relasi ke `siswa_matapelajaran.id` (`ON DELETE CASCADE`). |
+| `nilai_angka` | `DECIMAL(5,2)` | - | Tidak | - | Nilai angka santri (skala 0.00 sampai 100.00). |
+
+> [!NOTE]
+> **Kombinasi Unik (*Unique Constraint*)**:
+> Tabel `siswa_nilaisiswa` memiliki batasan `UNIQUE KEY unique_nilai (siswa_id, tahun_semester_id, mata_pelajaran_id)` untuk memastikan bahwa seorang santri **tidak memiliki nilai ganda** pada mata pelajaran dan periode semester yang sama.
+
+---
+
+### 6.3 Relasi Kunci Asing & Integritas Referensial
+
+1. **`auth_user` &harr; `accounts_userprofile`**:
+   - Tipe: *One-to-One (`1:1`)*
+   - Kebijakan Hapus: `ON DELETE CASCADE`. Jika akun pengguna dihapus dari `auth_user`, record profil tambahannya akan otomatis terhapus demi menjaga konsistensi basis data.
+2. **`accounts_userprofile` &harr; `siswa_siswa`**:
+   - Tipe: *Many-to-One / Opsional (`0..1:1`)*
+   - Kebijakan Hapus: `ON DELETE SET_NULL`. Jika data santri dihapus, akun login santri tersebut tidak langsung terhapus melainkan kolom `siswa_id` diubah menjadi `NULL` untuk mencegah *orphan error*.
+3. **`siswa_siswa` &harr; `siswa_nilaisiswa`**:
+   - Tipe: *One-to-Many (`1:N`)*
+   - Kebijakan Hapus: `ON DELETE CASCADE`. Jika santri dihapus, seluruh rekam jejak nilai hasil belajar santri terkait akan ikut dibersihkan.
+4. **`siswa_tahunsemester` & `siswa_matapelajaran` &harr; `siswa_nilaisiswa`**:
+   - Tipe: *One-to-Many (`1:N`)*
+   - Kebijakan Hapus: `ON DELETE CASCADE`. Integritas referensial terjaga apabila periode semester atau mata pelajaran disesuaikan.
 
 ---
 
