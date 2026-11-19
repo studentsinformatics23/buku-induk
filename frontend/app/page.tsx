@@ -539,11 +539,18 @@ export default function Home() {
                         </div>
                       </td>
 
-                      {/* Kelas */}
+                      {/* Kelas & Rombel */}
                       <td className="px-4 py-3.5">
-                        <span className="inline-block px-2.5 py-0.5 rounded-md text-xs font-bold bg-slate-100 text-slate-800 border border-slate-200">
-                          {siswa.kelas || '-'}
-                        </span>
+                        <div className="flex flex-col gap-0.5 items-start">
+                          <span className="inline-block px-2.5 py-0.5 rounded-md text-xs font-bold bg-slate-100 text-slate-800 border border-slate-200">
+                            {siswa.kelas || '-'}
+                          </span>
+                          {siswa.tingkat && siswa.rombel && (
+                            <span className="text-[10px] text-slate-500 font-medium">
+                              Tk {siswa.tingkat} &bull; Rombel {siswa.rombel}
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       {/* Gender L/P */}

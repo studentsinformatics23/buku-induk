@@ -1,3 +1,13 @@
+// Daftar pilihan tingkat standar
+export const DAFTAR_TINGKAT = [
+  { value: '7', label: 'Kelas 7 (MTs/SMP)' },
+  { value: '8', label: 'Kelas 8 (MTs/SMP)' },
+  { value: '9', label: 'Kelas 9 (MTs/SMP)' },
+  { value: '10', label: 'Kelas 10 (MA/SMA/SMK)' },
+  { value: '11', label: 'Kelas 11 (MA/SMA/SMK)' },
+  { value: '12', label: 'Kelas 12 (MA/SMA/SMK)' },
+];
+
 // Daftar pilihan kelas standar Pondok Pesantren dari Kelas 7 sampai dengan Kelas 12
 export interface KelasOption {
   value: string;

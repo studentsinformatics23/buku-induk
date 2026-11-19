@@ -19,6 +19,8 @@ export interface Siswa {
   tanggal_lahir: string;
   agama: string;
   alamat: string;
+  tingkat?: string;
+  rombel?: string;
   kelas: string;
   nama_ayah?: string;
   nama_ibu?: string;
@@ -28,6 +30,13 @@ export interface Siswa {
   foto: string | null;
   foto_url: string | null;
   nilai_list?: NilaiSiswa[];
+}
+
+export interface Rombel {
+  id: number;
+  tingkat: string;
+  nama: string;
+  display_name: string;
 }
 
 export interface TahunSemester {
@@ -219,11 +228,15 @@ export async function getCurrentUserApi(): Promise<User> {
 // ================= Siswa API =================
 export async function getSiswaList(filters?: {
   search?: string;
+  tingkat?: string;
+  rombel?: string;
   kelas?: string;
   status_siswa?: string;
 }): Promise<Siswa[]> {
   const params = new URLSearchParams();
   if (filters?.search) params.append('search', filters.search);
+  if (filters?.tingkat) params.append('tingkat', filters.tingkat);
+  if (filters?.rombel) params.append('rombel', filters.rombel);
   if (filters?.kelas) params.append('kelas', filters.kelas);
   if (filters?.status_siswa) params.append('status_siswa', filters.status_siswa);
 
@@ -301,6 +314,36 @@ export async function importSiswaExcel(file: File): Promise<ImportResult> {
 }
 
 // ================= Master Data APIs =================
+export async function getRombelList(filters?: { tingkat?: string }): Promise<Rombel[]> {
+  const params = new URLSearchParams();
+  if (filters?.tingkat) params.append('tingkat', filters.tingkat);
+  const query = params.toString() ? `?${params.toString()}` : '';
+  const data = await apiFetch<any>(`/rombel/${query}`);
+  return Array.isArray(data) ? data : (data.results || []);
+}
+
+export async function createRombel(data: { tingkat: string; nama: string }): Promise<Rombel> {
+  return apiFetch<Rombel>('/rombel/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateRombel(id: number, data: Partial<Rombel>): Promise<Rombel> {
+  return apiFetch<Rombel>(`/rombel/${id}/`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteRombel(id: number): Promise<void> {
+  return apiFetch<void>(`/rombel/${id}/`, {
+    method: 'DELETE',
+  });
+}
+
 export async function getTahunSemesterList(): Promise<TahunSemester[]> {
   const data = await apiFetch<any>('/tahun-semester/');
   return Array.isArray(data) ? data : (data.results || []);

@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Siswa, createSiswa, updateSiswa } from '../lib/api';
-import { DAFTAR_PILIHAN_KELAS, ALL_KELAS_VALUES } from '../lib/kelas';
+import { Siswa, Rombel, createSiswa, updateSiswa, getRombelList } from '../lib/api';
+import { DAFTAR_TINGKAT, ALL_KELAS_VALUES } from '../lib/kelas';
 import { XIcon, UploadIcon, AlertCircleIcon, UserIcon } from './Icons';
 
 interface SiswaModalProps {
@@ -25,7 +25,10 @@ export default function SiswaModal({
   const [tempatLahir, setTempatLahir] = useState('');
   const [tanggalLahir, setTanggalLahir] = useState('');
   const [agama, setAgama] = useState('Islam');
-  const [kelas, setKelas] = useState('X RPL 1');
+  const [tingkat, setTingkat] = useState('7');
+  const [rombel, setRombel] = useState('A');
+  const [kelas, setKelas] = useState('7A');
+  const [availableRombelList, setAvailableRombelList] = useState<Rombel[]>([]);
   const [statusSiswa, setStatusSiswa] = useState<'Aktif' | 'Lulus' | 'Pindah' | 'Keluar'>('Aktif');
   const [alamat, setAlamat] = useState('');
 
@@ -44,6 +47,14 @@ export default function SiswaModal({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
+    if (isOpen) {
+      getRombelList().then((data) => {
+        setAvailableRombelList(data);
+      }).catch(console.error);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
     if (siswaToEdit) {
       setNisn(siswaToEdit.nisn || '');
       setNamaLengkap(siswaToEdit.nama_lengkap || '');
@@ -51,7 +62,11 @@ export default function SiswaModal({
       setTempatLahir(siswaToEdit.tempat_lahir || '');
       setTanggalLahir(siswaToEdit.tanggal_lahir || '');
       setAgama(siswaToEdit.agama || 'Islam');
-      const k = siswaToEdit.kelas || '7A';
+      const t = siswaToEdit.tingkat || '7';
+      const r = siswaToEdit.rombel || '';
+      const k = siswaToEdit.kelas || (r ? `${t}${r}` : t);
+      setTingkat(t);
+      setRombel(r);
       setKelas(k);
       setIsCustomKelas(!ALL_KELAS_VALUES.includes(k) && k !== '');
       setStatusSiswa(siswaToEdit.status_siswa || 'Aktif');
@@ -69,6 +84,8 @@ export default function SiswaModal({
       setTempatLahir('');
       setTanggalLahir('');
       setAgama('Islam');
+      setTingkat('7');
+      setRombel('A');
       setKelas('7A');
       setIsCustomKelas(false);
       setStatusSiswa('Aktif');
@@ -107,6 +124,8 @@ export default function SiswaModal({
       formData.append('tempat_lahir', tempatLahir.trim());
       formData.append('tanggal_lahir', tanggalLahir);
       formData.append('agama', agama);
+      formData.append('tingkat', tingkat);
+      formData.append('rombel', rombel.trim());
       formData.append('kelas', kelas.trim());
       formData.append('status_siswa', statusSiswa);
       formData.append('alamat', alamat.trim());
@@ -217,52 +236,101 @@ export default function SiswaModal({
                 </select>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                  Kelas / Rombel <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={isCustomKelas ? 'CUSTOM' : kelas}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === 'CUSTOM') {
-                      setIsCustomKelas(true);
-                      if (ALL_KELAS_VALUES.includes(kelas)) {
-                        setKelas('');
+              {/* Pilihan Tingkat & Rombel */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-1">
+                    Tingkat Pendidikan <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={tingkat}
+                    onChange={(e) => {
+                      const newTingkat = e.target.value;
+                      setTingkat(newTingkat);
+                      // Otomatis sesuaikan rombel pertama dari tingkat tersebut jika ada
+                      const rombelMatching = availableRombelList.filter((r) => r.tingkat === newTingkat);
+                      if (rombelMatching.length > 0) {
+                        const firstRombel = rombelMatching[0].nama;
+                        setRombel(firstRombel);
+                        setKelas(rombelMatching[0].display_name);
+                      } else {
+                        setKelas(`Kelas ${newTingkat}`);
                       }
-                    } else {
-                      setIsCustomKelas(false);
-                      setKelas(val);
-                    }
-                  }}
-                  className="w-full px-3 py-2 text-xs sm:text-sm bg-white text-slate-900 font-semibold border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-2xs"
-                >
-                  <option value="">-- Pilih Kelas (7 s/d 12) --</option>
-                  {DAFTAR_PILIHAN_KELAS.map((group) => (
-                    <optgroup key={group.label} label={group.label}>
-                      {group.options.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
+                    }}
+                    className="w-full px-3 py-2 text-xs sm:text-sm bg-white text-slate-900 font-semibold border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-2xs"
+                  >
+                    {DAFTAR_TINGKAT.map((t) => (
+                      <option key={t.value} value={t.value}>
+                        {t.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-1">
+                    Rombel (Rombongan Belajar) <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={isCustomKelas ? 'CUSTOM' : rombel}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === 'CUSTOM') {
+                        setIsCustomKelas(true);
+                        setRombel('');
+                      } else {
+                        setIsCustomKelas(false);
+                        setRombel(val);
+                        const match = availableRombelList.find(
+                          (r) => r.tingkat === tingkat && r.nama === val
+                        );
+                        if (match) {
+                          setKelas(match.display_name);
+                        } else {
+                          const isSingleLetter = val.length === 1 && val.match(/[a-z]/i);
+                          setKelas(isSingleLetter ? `${tingkat}${val}` : `${tingkat} ${val}`);
+                        }
+                      }
+                    }}
+                    className="w-full px-3 py-2 text-xs sm:text-sm bg-white text-slate-900 font-semibold border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-2xs"
+                  >
+                    <option value="">-- Pilih Rombel --</option>
+                    {availableRombelList
+                      .filter((r) => r.tingkat === tingkat)
+                      .map((r) => (
+                        <option key={r.id} value={r.nama}>
+                          {r.display_name} (Rombel {r.nama})
                         </option>
                       ))}
-                    </optgroup>
-                  ))}
-                  {/* Tampilkan opsi saat ini jika bukan kelas standar */}
-                  {!ALL_KELAS_VALUES.includes(kelas) && kelas && !isCustomKelas && (
-                    <option value={kelas}>{kelas} (Saat ini)</option>
-                  )}
-                  <option value="CUSTOM">+ Ketik Kelas Lainnya (Custom)...</option>
-                </select>
+                    {rombel &&
+                      !availableRombelList.some((r) => r.tingkat === tingkat && r.nama === rombel) &&
+                      !isCustomKelas && (
+                        <option value={rombel}>
+                          {rombel} (Saat ini)
+                        </option>
+                      )}
+                    <option value="CUSTOM">+ Ketik Rombel Baru / Kustom...</option>
+                  </select>
+                </div>
 
                 {isCustomKelas && (
-                  <input
-                    type="text"
-                    required
-                    placeholder="Ketik nama kelas (misal: 7 Tahfidz)"
-                    value={kelas}
-                    onChange={(e) => setKelas(e.target.value)}
-                    className="mt-2 w-full px-3 py-1.5 text-xs sm:text-sm bg-white text-slate-900 font-semibold border border-blue-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-2xs animate-in fade-in"
-                  />
+                  <div className="sm:col-span-2 pt-1">
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                      Ketik Nama Rombel Kustom:
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Misal: Tahfidz 1, Unggulan, RPL 2"
+                      value={rombel}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setRombel(val);
+                        setKelas(val ? `${tingkat} ${val}` : `Kelas ${tingkat}`);
+                      }}
+                      className="w-full px-3 py-1.5 text-xs sm:text-sm bg-white text-slate-900 font-semibold border border-blue-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-2xs"
+                    />
+                  </div>
                 )}
               </div>
 

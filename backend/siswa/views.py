@@ -8,10 +8,11 @@ from datetime import datetime, date
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
-from .models import Siswa, TahunSemester, MataPelajaran, NilaiSiswa
+from .models import Siswa, Rombel, TahunSemester, MataPelajaran, NilaiSiswa
 from .serializers import (
     SiswaSerializer,
     SiswaDetailSerializer,
+    RombelSerializer,
     TahunSemesterSerializer,
     MataPelajaranSerializer,
     NilaiSiswaSerializer,
@@ -71,9 +72,15 @@ class SiswaViewSet(viewsets.ModelViewSet):
                 return queryset.filter(id=siswa_id)
             return queryset.none()
 
+        tingkat = self.request.query_params.get('tingkat')
+        rombel = self.request.query_params.get('rombel')
         kelas = self.request.query_params.get('kelas')
         status_siswa = self.request.query_params.get('status_siswa')
 
+        if tingkat:
+            queryset = queryset.filter(tingkat=tingkat)
+        if rombel:
+            queryset = queryset.filter(rombel__iexact=rombel)
         if kelas:
             queryset = queryset.filter(kelas__iexact=kelas)
         if status_siswa:
@@ -441,6 +448,28 @@ class SiswaViewSet(viewsets.ModelViewSet):
                 errors.append(f"Baris {row_num} (NISN: {nisn}): Tanggal lahir tidak boleh kosong.")
                 continue
 
+            # Ekstrak tingkat dan rombel dari kelas
+            tingkat = '7'
+            rombel = ''
+            if kelas and kelas != '-':
+                clean_k = kelas.replace('Kelas', '').strip()
+                for t in ['12', '11', '10', '9', '8', '7']:
+                    if clean_k.startswith(t):
+                        tingkat = t
+                        rombel = clean_k[len(t):].strip()
+                        break
+                if not rombel and clean_k.upper().startswith('X'):
+                    # Contoh: X RPL 1 -> tingkat 10, rombel RPL 1
+                    if clean_k.upper().startswith('XII'):
+                        tingkat = '12'
+                        rombel = clean_k[3:].strip()
+                    elif clean_k.upper().startswith('XI'):
+                        tingkat = '11'
+                        rombel = clean_k[2:].strip()
+                    elif clean_k.upper().startswith('X'):
+                        tingkat = '10'
+                        rombel = clean_k[1:].strip()
+
             _, created = Siswa.objects.update_or_create(
                 nisn=nisn,
                 defaults={
@@ -449,6 +478,8 @@ class SiswaViewSet(viewsets.ModelViewSet):
                     'tempat_lahir': tempat,
                     'tanggal_lahir': parsed_date,
                     'agama': agama,
+                    'tingkat': tingkat,
+                    'rombel': rombel,
                     'kelas': kelas,
                     'alamat': alamat,
                     'nama_ayah': nama_ayah,
@@ -478,6 +509,38 @@ class SiswaViewSet(viewsets.ModelViewSet):
             "total_processed": total_processed,
             "errors": errors,
         }, status=status.HTTP_200_OK)
+
+
+class RombelViewSet(viewsets.ModelViewSet):
+    """API endpoint untuk Manajemen Rombongan Belajar / Rombel (CRUD). Hanya admin yang bisa edit."""
+    queryset = Rombel.objects.all()
+    serializer_class = RombelSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['nama', 'tingkat']
+    ordering_fields = ['tingkat', 'nama']
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        tingkat = self.request.query_params.get('tingkat')
+        if tingkat:
+            queryset = queryset.filter(tingkat=tingkat)
+        return queryset
+
+    def create(self, request, *args, **kwargs):
+        if not is_admin(request):
+            raise PermissionDenied("Hanya admin yang dapat menambah data rombel.")
+        return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        if not is_admin(request):
+            raise PermissionDenied("Hanya admin yang dapat mengubah data rombel.")
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        if not is_admin(request):
+            raise PermissionDenied("Hanya admin yang dapat menghapus data rombel.")
+        return super().destroy(request, *args, **kwargs)
 
 
 class TahunSemesterViewSet(viewsets.ModelViewSet):

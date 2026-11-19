@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Siswa, TahunSemester, MataPelajaran, NilaiSiswa
+from .models import Siswa, Rombel, TahunSemester, MataPelajaran, NilaiSiswa
 
 
 class NilaiSiswaInline(admin.TabularInline):
@@ -10,9 +10,9 @@ class NilaiSiswaInline(admin.TabularInline):
 
 @admin.register(Siswa)
 class SiswaAdmin(admin.ModelAdmin):
-    list_display = ('nisn', 'nama_lengkap', 'kelas', 'jenis_kelamin', 'status_siswa')
-    list_filter = ('kelas', 'jenis_kelamin', 'agama', 'status_siswa')
-    search_fields = ('nisn', 'nama_lengkap', 'alamat', 'kelas')
+    list_display = ('nisn', 'nama_lengkap', 'tingkat', 'rombel', 'kelas', 'jenis_kelamin', 'status_siswa')
+    list_filter = ('tingkat', 'kelas', 'jenis_kelamin', 'agama', 'status_siswa')
+    search_fields = ('nisn', 'nama_lengkap', 'alamat', 'kelas', 'rombel')
     list_per_page = 20
     inlines = [NilaiSiswaInline]
     fieldsets = (
@@ -21,6 +21,8 @@ class SiswaAdmin(admin.ModelAdmin):
                 'nisn',
                 'nama_lengkap',
                 'jenis_kelamin',
+                'tingkat',
+                'rombel',
                 'kelas',
                 'tempat_lahir',
                 'tanggal_lahir',
@@ -43,6 +45,14 @@ class SiswaAdmin(admin.ModelAdmin):
             )
         }),
     )
+
+
+@admin.register(Rombel)
+class RombelAdmin(admin.ModelAdmin):
+    list_display = ('tingkat', 'nama', 'display_name')
+    list_filter = ('tingkat',)
+    search_fields = ('nama',)
+    ordering = ('tingkat', 'nama')
 
 
 @admin.register(TahunSemester)

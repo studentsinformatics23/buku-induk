@@ -287,13 +287,21 @@ erDiagram
         date tanggal_lahir
         string agama
         string alamat
-        string kelas "Pilihan 7 s/d 12"
+        string tingkat "Pilihan 7 s/d 12"
+        string rombel "Nama Rombel misal: A, B, RPL 1"
+        string kelas "Label Gabungan Kelas (contoh: 7A, 10 RPL 1)"
         string nama_ayah
         string nama_ibu
         string pekerjaan_ortu
         string no_telepon_ortu
         string status_siswa "Aktif | Lulus | Pindah | Keluar"
         string foto "foto_siswa/path.jpg"
+    }
+
+    ROMBEL {
+        int id PK
+        string tingkat "Pilihan 7 s/d 12"
+        string nama "Nama rombel: A, B, IPA 1, RPL 1"
     }
 
     TAHUN_SEMESTER {
@@ -367,7 +375,9 @@ Menyimpan informasi identitas santri, asal kelahiran, domisili, wali santri, sta
 | `tanggal_lahir` | `DATE` | - | Tidak | - | Tanggal lahir santri (format standar: `YYYY-MM-DD`). |
 | `agama` | `VARCHAR(20)` | - | Tidak | `'Islam'` | Agama santri (pilihan: `'Islam'`, `'Kristen'`, `'Katolik'`, `'Hindu'`, `'Buddha'`, `'Konghucu'`). |
 | `alamat` | `TEXT` | - | Tidak | - | Alamat tempat tinggal lengkap santri. |
-| `kelas` | `VARCHAR(50)` | - | Tidak | `'7A'` | Kelas santri saat ini (Kelas 7, 8, 9 [SMP] hingga Kelas 10, 11, 12 [SMA]). |
+| `tingkat` | `VARCHAR(10)` | - | Tidak | `'7'` | Tingkat pendidikan santri saat ini (Pilihan 7 s/d 12). |
+| `rombel` | `VARCHAR(50)` | - | Ya | `""` | Nama rombongan belajar / sub-kelas (contoh: `'A'`, `'B'`, `'RPL 1'`, `'IPA 1'`). |
+| `kelas` | `VARCHAR(50)` | - | Tidak | `'7A'` | Label gabungan tingkat dan rombel santri (contoh: `'7A'`, `'10 RPL 1'`). |
 | `nama_ayah` | `VARCHAR(100)` | - | Ya | `""` | Nama lengkap ayah kandung / wali laki-laki. |
 | `nama_ibu` | `VARCHAR(100)` | - | Ya | `""` | Nama lengkap ibu kandung. |
 | `pekerjaan_ortu`| `VARCHAR(100)` | - | Ya | `""` | Pekerjaan utama orang tua / wali santri. |
@@ -377,7 +387,21 @@ Menyimpan informasi identitas santri, asal kelahiran, domisili, wali santri, sta
 
 ---
 
-#### 4. Tabel `siswa_tahunsemester` (Periode Tahun Ajaran & Semester)
+#### 4. Tabel `siswa_rombel` (Katalog Rombongan Belajar / Rombel)
+Menyimpan master data rombongan belajar (sub-kelas) per tingkat yang ditambahkan dan dikelola langsung secara manual oleh Admin.
+
+| Nama Kolom | Tipe Data | Kunci | Nullable | Nilai Default | Keterangan & Aturan Validasi |
+| :--- | :--- | :---: | :---: | :--- | :--- |
+| `id` | `BIGINT AUTO_INCREMENT` | **PK** | Tidak | Auto | Identifikator unik data rombel. |
+| `tingkat` | `VARCHAR(10)` | - | Tidak | `'7'` | Tingkat kelas pilihan ('7', '8', '9', '10', '11', '12'). |
+| `nama` | `VARCHAR(50)` | - | Tidak | - | Nama rombel (misal: 'A', 'B', 'IPA 1', 'RPL 1', 'Tahfidz'). |
+
+> [!NOTE]
+> Batasan Unik (*Unique Constraint*): `UNIQUE KEY unique_rombel (tingkat, nama)` mencegah duplikasi nama rombel pada tingkat kelas yang sama.
+
+---
+
+#### 5. Tabel `siswa_tahunsemester` (Periode Tahun Ajaran & Semester)
 Menyimpan daftar tahun pelajaran dan periode semester untuk pengelompokan riwayat evaluasi nilai santri.
 
 | Nama Kolom | Tipe Data | Kunci | Nullable | Nilai Default | Keterangan & Aturan Validasi |
@@ -388,7 +412,7 @@ Menyimpan daftar tahun pelajaran dan periode semester untuk pengelompokan riwaya
 
 ---
 
-#### 5. Tabel `siswa_matapelajaran` (Katalog Mata Pelajaran)
+#### 6. Tabel `siswa_matapelajaran` (Katalog Mata Pelajaran)
 Menyimpan master data mata pelajaran kurikulum pondok pesantren dan sekolah umum/terpadu.
 
 | Nama Kolom | Tipe Data | Kunci | Nullable | Nilai Default | Keterangan & Aturan Validasi |
@@ -399,7 +423,7 @@ Menyimpan master data mata pelajaran kurikulum pondok pesantren dan sekolah umum
 
 ---
 
-#### 6. Tabel `siswa_nilaisiswa` (Catatan Evaluasi Nilai Hasil Belajar)
+#### 7. Tabel `siswa_nilaisiswa` (Catatan Evaluasi Nilai Hasil Belajar)
 Menyimpan nilai kuantitatif santri per mata pelajaran pada periode tahun ajaran dan semester tertentu.
 
 | Nama Kolom | Tipe Data | Kunci | Nullable | Nilai Default | Keterangan & Aturan Validasi |

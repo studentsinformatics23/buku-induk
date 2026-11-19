@@ -1,5 +1,13 @@
 from rest_framework import serializers
-from .models import Siswa, TahunSemester, MataPelajaran, NilaiSiswa
+from .models import Siswa, Rombel, TahunSemester, MataPelajaran, NilaiSiswa
+
+
+class RombelSerializer(serializers.ModelSerializer):
+    display_name = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Rombel
+        fields = ['id', 'tingkat', 'nama', 'display_name']
 
 
 class TahunSemesterSerializer(serializers.ModelSerializer):
@@ -53,6 +61,8 @@ class SiswaSerializer(serializers.ModelSerializer):
             'tanggal_lahir',
             'agama',
             'alamat',
+            'tingkat',
+            'rombel',
             'kelas',
             'nama_ayah',
             'nama_ibu',

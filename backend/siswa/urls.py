@@ -2,6 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     SiswaViewSet,
+    RombelViewSet,
     TahunSemesterViewSet,
     MataPelajaranViewSet,
     NilaiSiswaViewSet,
@@ -9,6 +10,7 @@ from .views import (
 
 router = DefaultRouter()
 router.register(r'siswa', SiswaViewSet, basename='siswa')
+router.register(r'rombel', RombelViewSet, basename='rombel')
 router.register(r'tahun-semester', TahunSemesterViewSet, basename='tahun-semester')
 router.register(r'mata-pelajaran', MataPelajaranViewSet, basename='mata-pelajaran')
 router.register(r'nilai', NilaiSiswaViewSet, basename='nilai')
