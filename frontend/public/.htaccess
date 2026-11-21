@@ -1,0 +1,15 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Jika request diarahkan ke /api atau /admin atau /media atau /static, jangan rewrite (biarkan ditangani oleh Python Django)
+  RewriteRule ^(api|admin|media|static)(/.*)?$ - [L]
+
+  # Jika file atau direktori fisik ada, layani langsung
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Jika tidak ada, arahkan ke index.html (SPA Fallback untuk Next.js)
+  RewriteRule ^ index.html [L]
+</IfModule>
